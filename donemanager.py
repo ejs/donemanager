@@ -5,11 +5,6 @@ import sys
 import os, os.path
 
 
-BASEDIR = os.path.expanduser('~/.donemanager')
-if not os.path.exists(BASEDIR):
-   os.mkdir(BASEDIR)
-
-
 def log(message, fn):
     with open(fn, 'a') as sink:
         sink.write('%s %s\n'%(time.ctime(), message))
@@ -25,6 +20,9 @@ def parze(fn):
     
 
 if __name__ == '__main__':
+    BASEDIR = os.path.expanduser('~/.donemanager')
+    if not os.path.exists(BASEDIR):
+       os.mkdir(BASEDIR)
     todaysfile = time.strftime(BASEDIR+'/%Y%m%d.txt')
     if len(sys.argv) < 2:
         parze(todaysfile)
