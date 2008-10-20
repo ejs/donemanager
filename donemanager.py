@@ -18,7 +18,10 @@ def log(message, fn):
 def parze(fn):
     with open(fn) as source:
         for l in source:
+            last = time.strptime(l[:24])
             print l.strip()
+    age = int(time.time() - time.mktime(last))/60
+    print "Time since last action %2i hours %2i minutes"%(age/60, age%60)
     
 
 if __name__ == '__main__':
