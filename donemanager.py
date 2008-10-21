@@ -13,10 +13,8 @@ def log(message, fn):
 def parze(fn):
     with open(fn) as source:
         for l in source:
-            last = time.strptime(l[:24])
-            print l.strip()
-    age = int(time.time() - time.mktime(last))/60
-    print "Time since last action %2i hours %2i minutes"%(age/60, age%60)
+            t, d = l[:24].strip(), l[24:].strip()
+            yield time.strptime(t), d
     
 
 if __name__ == '__main__':
@@ -25,6 +23,9 @@ if __name__ == '__main__':
        os.mkdir(BASEDIR)
     todaysfile = time.strftime(BASEDIR+'/%Y%m%d.txt')
     if len(sys.argv) < 2:
-        parze(todaysfile)
+        for t, m in parze(todaysfile):
+            print t, m
+        age = int(time.time() - time.mktime(t))/60
+        print "Time since last action %2i hours %2i minutes"%(age/60, age%60)
     else:
         log(sys.argv[1], todaysfile)
