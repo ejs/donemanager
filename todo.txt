@@ -2,3 +2,5 @@ set efective midnight in config file
 flags to show this weeks or this months sumary
 try and guide towards using the same tasks repeatedly
 seperate work/slack/break
+
+should now be being used by git commit.
