@@ -18,8 +18,11 @@ def parze(fn):
     
 
 def timedisplay(log):
+    lm = None
     for t, m in log:
-        yield "%s\t%s"%(time.ctime(time.mktime(t)), m)
+        if m != lm:
+            yield "%s\t%s"%(time.ctime(time.mktime(t)), m)
+        lm = m
 
 
 def groupeddisplay(log):
