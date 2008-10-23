@@ -53,8 +53,10 @@ def basicdisplay(log, aim):
 
 def daysummery(log, aim):
     """aim is the number of hours that should be worked over this time period."""
-    actions = groupeddisplay(log)
-    validtime = sum(tm for task, tm in actions if not task.endswith('**'))
+    actions = {}
+    for ta, tm in groupeddisplay(log):
+       actions[ta] = actions.get(ta, 0) + tm 
+    validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - time.mktime(mostrecent))/60
