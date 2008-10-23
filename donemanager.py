@@ -61,7 +61,11 @@ def summerydisplay(log, aim=7):
         yield "Congratulations. have a rest."
 
 
-def weeklysummery():
+def longsummery(days, workingdays):
+    """
+        days : the number of days to search back for existing files.
+        workingdays : the aimed numner of days to work in this time.
+    """
     valid = [todaysfile]
     actions = {}
     for day in valid:
@@ -69,8 +73,12 @@ def weeklysummery():
            actions[ta] = actions.get(ta, 0) + tm 
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-    togo = len(valid)*7*60 - validtime
-    yield "Over the %i days you worked in the last week you."%len(valid)
+    togo = min(workingdays, len(valid))*7*60 - validtime
+    yield "Over the %i days you worked %i."%(days, len(valid))
+    if len(valid) >= days:
+        yield "Welldone, you are aimed for %i"%workingdays
+    else:
+        yield "You are aiming for %i so you are %i short"%(workingdays, workingdays-len(valid))
     yield "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
     yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
     yield "You should have worked %i hours."%(7*len(valid), )
@@ -95,7 +103,7 @@ if __name__ == '__main__':
             for line in summerydisplay(log):
                 print line
         if sys.argv[1] == '-w':
-            for line in weeklysummery():
+            for line in longsummery(7, 5):
                 print line
     else:
         logmessage(sys.argv[1], todaysfile)
