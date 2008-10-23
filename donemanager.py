@@ -61,7 +61,7 @@ def summerydisplay(log, aim=7):
         yield "Congratulations. have a rest."
 
 
-def longsummery(days, workingdays):
+def longsummery(days, workingdays, aim=7):
     """
         days : the number of days to search back for existing files.
         workingdays : the aimed numner of days to work in this time.
@@ -73,7 +73,7 @@ def longsummery(days, workingdays):
            actions[ta] = actions.get(ta, 0) + tm 
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-    togo = min(workingdays, len(valid))*7*60 - validtime
+    togo = min(workingdays, len(valid))*aim*60 - validtime
     yield "Over the %i days you worked %i."%(days, len(valid))
     if len(valid) >= days:
         yield "Welldone, you are aimed for %i"%workingdays
