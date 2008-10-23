@@ -12,17 +12,12 @@ def log(message, fn):
 
 def parze(fn):
     with open(fn) as source:
+        lm = None
         for l in source:
-            t, d = l[:24].strip(), l[24:].strip()
-            yield time.strptime(t), d
-    
-
-def timedisplay(log):
-    lm = None
-    for t, m in log:
-        if m != lm:
-            yield "%s\t%s"%(time.ctime(time.mktime(t)), m)
-        lm = m
+            t, m = l[:24].strip(), l[24:].strip()
+            if m != lm:
+                yield time.strptime(t), m
+            lm = m
 
 
 def groupeddisplay(log):
@@ -45,8 +40,8 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         log = [(t, m) for t, m in parze(todaysfile)]
         validtime = 0
-        for line in timedisplay(log):
-            print line
+        for line in log:
+            print "%s\t%s"%(time.ctime(time.mktime(t)), m)
         print
         for task, tm in groupeddisplay(log):
             print "%s\t%2i:%02i"%(task, tm/60, tm%60)
