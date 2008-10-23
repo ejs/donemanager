@@ -50,8 +50,7 @@ def basicdisplay(log):
     yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
 
 
-def daysummerydisplay(fn):
-    log = [(t, m) for t, m in parze(fn)]
+def summerydisplay(log):
     validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - time.mktime(mostrecent))/60
@@ -72,7 +71,8 @@ if __name__ == '__main__':
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
-            for line in daysummerydisplay(todaysfile):
+            log = [(t, m) for t, m in parze(todaysfile)]
+            for line in summerydisplay(log):
                 print line
     else:
         log(sys.argv[1], todaysfile)
