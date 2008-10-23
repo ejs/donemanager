@@ -55,8 +55,10 @@ def summerydisplay(log, aim=7):
     togo = aim*60 - validtime
     yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
     yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
-    yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
-
+    if togo > 0:
+        yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
+    else:
+        yield "Congratulations. have a rest."
 
 if __name__ == '__main__':
     BASEDIR = os.path.expanduser('~/.donemanager')
