@@ -36,6 +36,7 @@ def groupeddisplay(log):
 
 
 def basicdisplay(log, aim=7):
+    """aim is the number of hours that should be worked over this time period."""
     for t, m in log:
         yield "%40s %s"%(time.ctime(time.mktime(t)), m)
     yield ''
@@ -47,6 +48,7 @@ def basicdisplay(log, aim=7):
 
 
 def summerydisplay(log, aim=7):
+    """aim is the number of hours that should be worked over this time period."""
     validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - time.mktime(mostrecent))/60
