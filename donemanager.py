@@ -35,8 +35,6 @@ def groupeddisplay(log):
     for task in sorted(totals, key=(lambda k:totals[k])):
         tt = int(totals[task]/60)
         yield task, "%2i:%02i"%(tt/60, tt%60)
-    age = int(time.time() - time.mktime(t))/60
-    yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
 
 
 if __name__ == '__main__':
@@ -50,5 +48,7 @@ if __name__ == '__main__':
             print line
         for line in groupeddisplay(log):
             print line
+        age = int(time.time() - time.mktime(max(i[0] for i in log)))/60
+        print "Time since last action %2i hours %2i minutes"%(age/60, age%60)
     else:
         log(sys.argv[1], todaysfile)
