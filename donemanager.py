@@ -52,6 +52,21 @@ def basicdisplay(fn):
     togo = 7*60 - validtime
     yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
 
+
+def summerydisplay(fn):
+    log = [(t, m) for t, m in parze(fn)]
+    validtime = 0
+    for task, tm in groupeddisplay(log):
+        if not task.endswith('**'):
+            validtime += tm
+    mostrecent = max(i[0] for i in log)
+    age = int(time.time() - time.mktime(mostrecent))/60
+    yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
+    yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
+    togo = 7*60 - validtime
+    yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
+
+
 if __name__ == '__main__':
     BASEDIR = os.path.expanduser('~/.donemanager')
     if not os.path.exists(BASEDIR):
@@ -61,6 +76,8 @@ if __name__ == '__main__':
         for line in basicdisplay(todaysfile):
             print line
     elif sys.argv[1].startswith('-'):
-        print "FLAG"
+        if sys.argv[1] == '-s':
+            for line in summerydisplay(todaysfile):
+                print line
     else:
         log(sys.argv[1], todaysfile)
