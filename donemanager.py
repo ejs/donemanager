@@ -84,9 +84,9 @@ def longsummery(days, workingdays, aim):
     togo = min(workingdays, len(valid))*aim*60 - validtime
     yield "Over the %i days you worked %i."%(days, len(valid))
     if len(valid) >= days:
-        yield "Welldone, you are aimed for %i"%workingdays
+        yield "Welldone, you are aimed for %i days."%workingdays
     else:
-        yield "You are aiming for %i so you are %i short"%(workingdays, workingdays-len(valid))
+        yield "You are aiming for %i days so you are %i short"%(workingdays, workingdays-len(valid))
     yield "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
     yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
     yield "You should have worked %i hours."%(aim*len(valid), )
@@ -112,6 +112,9 @@ if __name__ == '__main__':
                 print line
         if sys.argv[1] == '-w':
             for line in longsummery(7, WORKWEEK, DAILYHOURS):
+                print line
+        if sys.argv[1] == '-m':
+            for line in longsummery(7*4, WORKWEEK*4, DAILYHOURS):
                 print line
     else:
         logmessage(sys.argv[1], todaysfile)
