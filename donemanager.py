@@ -60,6 +60,26 @@ def summerydisplay(log, aim=7):
     else:
         yield "Congratulations. have a rest."
 
+
+def weeklysummery():
+    valid = [todaysfile]
+    actions = {}
+    for day in valid:
+        for ta, tm in groupeddisplay(parze(day)):
+           actions[ta] = actions.get(ta, 0) + tm 
+    validtime = sum(actions[task] for task in actions if not task.endswith('**'))
+    wasted  = sum(actions[task] for task in actions if task.endswith('**'))
+    togo = len(valid)*7*60 - validtime
+    yield "Over the %i days you worked in the last week you."%len(valid)
+    yield "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
+    yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
+    yield "You should have worked %i hours."%(7*len(valid), )
+    if togo > 0:
+        yield "To still do this you would have to work a further %i hours  %i today"%(togo/60, togo%60)
+    else:
+        yield "Congratulations. have a rest."
+
+
 if __name__ == '__main__':
     BASEDIR = os.path.expanduser('~/.donemanager')
     if not os.path.exists(BASEDIR):
@@ -75,21 +95,7 @@ if __name__ == '__main__':
             for line in summerydisplay(log):
                 print line
         if sys.argv[1] == '-w':
-            valid = [todaysfile]
-            actions = {}
-            for day in valid:
-                for ta, tm in groupeddisplay(parze(day)):
-                   actions[ta] = actions.get(ta, 0) + tm 
-            validtime = sum(actions[task] for task in actions if not task.endswith('**'))
-            wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-            togo = len(valid)*7*60 - validtime
-            print "Over the %i days you worked in the last week you."%len(valid)
-            print "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
-            print "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
-            print "You should have worked %i hours."%(7*len(valid), )
-            if togo > 0:
-                print "To still do this you would have to work a further %i hours  %i today"%(togo/60, togo%60)
-            else:
-                print "Congratulations. have a rest."
+            for line in weeklysummery():
+                print line
     else:
         logmessage(sys.argv[1], todaysfile)
