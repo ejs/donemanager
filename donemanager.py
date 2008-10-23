@@ -39,10 +39,10 @@ def basicdisplay(fn):
     log = [(t, m) for t, m in parze(fn)]
     validtime = 0
     for t, m in log:
-        yield "%s\t%s"%(time.ctime(time.mktime(t)), m)
+        yield "%40s %s"%(time.ctime(time.mktime(t)), m)
     yield ''
     for task, tm in groupeddisplay(log):
-        yield "%s\t%2i:%02i"%(task, tm/60, tm%60)
+        yield "% 40s %2i:%02i"%(task, tm/60, tm%60)
         if not task.endswith('**'):
             validtime += tm
     mostrecent = max(i[0] for i in log)
