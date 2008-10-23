@@ -30,7 +30,7 @@ def groupeddisplay(log):
         if last:
             totals[m] = totals.get(m, 0) + time.mktime(t) - time.mktime(last)
         last = t
-    for task in sorted(totals, key=(lambda k:totals[k])):
+    for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
         tt = int(totals[task]/60)
         yield task, tt
 
