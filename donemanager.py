@@ -53,16 +53,20 @@ def basicdisplay(log, aim=DAILYHOURS):
 
 def daysummery(log, aim=DAILYHOURS):
     """aim is the number of hours that should be worked over this time period."""
-    validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
+    actions = groupeddisplay(log)
+    validtime = sum(tm for task, tm in actions if not task.endswith('**'))
+    wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - time.mktime(mostrecent))/60
     togo = aim*60 - validtime
-    yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
     yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
+    yield "Wasted time            %2i hours %2i minutes"%(wasted/60, wasted%60)
     if togo > 0:
         yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
     else:
         yield "Congratulations. have a rest."
+    yield ''
+    yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
 
 
 def longsummery(days, workingdays, aim=DAILYHOURS):
