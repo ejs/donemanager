@@ -55,10 +55,7 @@ def basicdisplay(fn):
 
 def summerydisplay(fn):
     log = [(t, m) for t, m in parze(fn)]
-    validtime = 0
-    for task, tm in groupeddisplay(log):
-        if not task.endswith('**'):
-            validtime += tm
+    validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - time.mktime(mostrecent))/60
     yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
