@@ -17,15 +17,15 @@ def parze(fn):
             yield time.strptime(t), d
     
 
-def timedisplay(fn):
-    for t, m in parze(fn):
+def timedisplay(log):
+    for t, m in log:
         yield "%s\t%s"%(time.ctime(time.mktime(t)), m)
 
 
-def groupeddisplay(fn):
+def groupeddisplay(log):
     totals = {}
     last = None
-    for t, m in parze(fn):
+    for t, m in log:
         if last:
             totals[m] = totals.get(m, 0) + time.mktime(t) - time.mktime(last)
         last = t
@@ -42,9 +42,10 @@ if __name__ == '__main__':
        os.mkdir(BASEDIR)
     todaysfile = time.strftime(BASEDIR+'/%Y%m%d.txt')
     if len(sys.argv) < 2:
-        for line in timedisplay(todaysfile):
+        log = [(t, m) for t, m in parze(todaysfile)]
+        for line in timedisplay(log):
             print line
-        for line in groupeddisplay(todaysfile):
+        for line in groupeddisplay(log):
             print line
     else:
         log(sys.argv[1], todaysfile)
