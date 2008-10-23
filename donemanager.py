@@ -5,7 +5,7 @@ import sys
 import os, os.path
 
 
-def log(message, fn):
+def logmessage(message, fn):
     with open(fn, 'a') as sink:
         sink.write('%s %s\n'%(time.ctime(), message))
 
@@ -72,5 +72,15 @@ if __name__ == '__main__':
             log = [(t, m) for t, m in parze(todaysfile)]
             for line in summerydisplay(log):
                 print line
+        if sys.argv[1] == '-w':
+            valid = [todaysfile]
+            actions = {}
+            for day in valid:
+                for ta, tm in groupeddisplay(parze(day)):
+                   actions[ta] = actions.get(ta, 0) + tm 
+            validtime = sum(actions[task] for task in actions if not task.endswith('**'))
+            wasted  = sum(actions[task] for task in actions if task.endswith('**'))
+            print "Usefull time     %2i hours %2i minutes"%(validtime/60, validtime%60)
+            print "Wasted  time     %2i hours %2i minutes"%(wasted/60, wasted%60)
     else:
-        log(sys.argv[1], todaysfile)
+        logmessage(sys.argv[1], todaysfile)
