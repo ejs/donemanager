@@ -35,8 +35,7 @@ def groupeddisplay(log):
         yield task, tt
 
 
-def basicdisplay(fn):
-    log = [(t, m) for t, m in parze(fn)]
+def basicdisplay(log):
     for t, m in log:
         yield "%40s %s"%(time.ctime(time.mktime(t)), m)
     yield ''
@@ -51,7 +50,7 @@ def basicdisplay(fn):
     yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
 
 
-def summerydisplay(fn):
+def daysummerydisplay(fn):
     log = [(t, m) for t, m in parze(fn)]
     validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
@@ -68,11 +67,12 @@ if __name__ == '__main__':
        os.mkdir(BASEDIR)
     todaysfile = time.strftime(BASEDIR+'/%Y%m%d.txt')
     if len(sys.argv) < 2:
-        for line in basicdisplay(todaysfile):
+        log = [(t, m) for t, m in parze(todaysfile)]
+        for line in basicdisplay(log):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
-            for line in summerydisplay(todaysfile):
+            for line in daysummerydisplay(todaysfile):
                 print line
     else:
         log(sys.argv[1], todaysfile)
