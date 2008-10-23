@@ -42,10 +42,10 @@ def groupeddisplay(log):
 def basicdisplay(log, aim):
     """aim is the number of hours that should be worked over this time period."""
     for t, m in log:
-        yield "%40s %s"%(time.ctime(time.mktime(t)), m.rstrip('* '))
+        yield "%40s %s %s"%(time.ctime(time.mktime(t)), '*' if m.endswith('**') else ' ', m.rstrip('* '))
     yield ''
     for task, tm in groupeddisplay(log):
-        yield "% 40s %2i:%02i"%(task.rstrip('* '), tm/60, tm%60)
+        yield "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
     yield ''
     for line in daysummery(log, aim):
         yield line
