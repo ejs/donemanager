@@ -39,7 +39,7 @@ def groupeddisplay(log):
         yield task, tt
 
 
-def basicdisplay(log, aim=DAILYHOURS):
+def basicdisplay(log, aim):
     """aim is the number of hours that should be worked over this time period."""
     for t, m in log:
         yield "%40s %s"%(time.ctime(time.mktime(t)), m.rstrip('* '))
@@ -51,7 +51,7 @@ def basicdisplay(log, aim=DAILYHOURS):
         yield line
 
 
-def daysummery(log, aim=DAILYHOURS):
+def daysummery(log, aim):
     """aim is the number of hours that should be worked over this time period."""
     actions = groupeddisplay(log)
     validtime = sum(tm for task, tm in actions if not task.endswith('**'))
@@ -69,7 +69,7 @@ def daysummery(log, aim=DAILYHOURS):
     yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
 
 
-def longsummery(days, workingdays, aim=DAILYHOURS):
+def longsummery(days, workingdays, aim):
     """
         days : the number of days to search back for existing files.
         workingdays : the aimed numner of days to work in this time.
@@ -103,15 +103,15 @@ if __name__ == '__main__':
     todaysfile = time.strftime(BASEDIR+'/%Y%m%d.txt')
     if len(sys.argv) < 2:
         log = [(t, m) for t, m in parze(todaysfile)]
-        for line in basicdisplay(log):
+        for line in basicdisplay(log, DAILYHOURS):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
             log = [(t, m) for t, m in parze(todaysfile)]
-            for line in daysummery(log):
+            for line in daysummery(log, DAILYHOURS):
                 print line
         if sys.argv[1] == '-w':
-            for line in longsummery(7, WORKWEEK):
+            for line in longsummery(7, WORKWEEK, DAILYHOURS):
                 print line
     else:
         logmessage(sys.argv[1], todaysfile)
