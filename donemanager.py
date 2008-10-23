@@ -5,6 +5,10 @@ import sys
 import os, os.path
 
 
+WORKWEEK = 5
+DAILYHOURS = 7
+
+
 def logmessage(message, fn):
     with open(fn, 'a') as sink:
         sink.write('%s %s\n'%(time.ctime(), message))
@@ -35,7 +39,7 @@ def groupeddisplay(log):
         yield task, tt
 
 
-def basicdisplay(log, aim=7):
+def basicdisplay(log, aim=DAILYHOURS):
     """aim is the number of hours that should be worked over this time period."""
     for t, m in log:
         yield "%40s %s"%(time.ctime(time.mktime(t)), m)
@@ -47,7 +51,7 @@ def basicdisplay(log, aim=7):
         yield line
 
 
-def daysummery(log, aim=7):
+def daysummery(log, aim=DAILYHOURS):
     """aim is the number of hours that should be worked over this time period."""
     validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
@@ -61,7 +65,7 @@ def daysummery(log, aim=7):
         yield "Congratulations. have a rest."
 
 
-def longsummery(days, workingdays, aim=7):
+def longsummery(days, workingdays, aim=DAILYHOURS):
     """
         days : the number of days to search back for existing files.
         workingdays : the aimed numner of days to work in this time.
@@ -81,7 +85,7 @@ def longsummery(days, workingdays, aim=7):
         yield "You are aiming for %i so you are %i short"%(workingdays, workingdays-len(valid))
     yield "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
     yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
-    yield "You should have worked %i hours."%(7*len(valid), )
+    yield "You should have worked %i hours."%(aim*len(valid), )
     if togo > 0:
         yield "To still do this you would have to work a further %i hours  %i today"%(togo/60, togo%60)
     else:
@@ -103,7 +107,7 @@ if __name__ == '__main__':
             for line in daysummery(log):
                 print line
         if sys.argv[1] == '-w':
-            for line in longsummery(7, 5):
+            for line in longsummery(7, WORKWEEK):
                 print line
     else:
         logmessage(sys.argv[1], todaysfile)
