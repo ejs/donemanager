@@ -60,5 +60,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         for line in basicdisplay(todaysfile):
             print line
+    elif sys.argv[1].startswith('-'):
+        print "FLAG"
     else:
         log(sys.argv[1], todaysfile)
