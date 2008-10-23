@@ -43,11 +43,11 @@ def basicdisplay(log, aim=7):
     for task, tm in groupeddisplay(log):
         yield "% 40s %2i:%02i"%(task, tm/60, tm%60)
     yield ''
-    for line in summerydisplay(log, aim):
+    for line in daysummery(log, aim):
         yield line
 
 
-def summerydisplay(log, aim=7):
+def daysummery(log, aim=7):
     """aim is the number of hours that should be worked over this time period."""
     validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
             log = [(t, m) for t, m in parze(todaysfile)]
-            for line in summerydisplay(log):
+            for line in daysummery(log):
                 print line
         if sys.argv[1] == '-w':
             for line in longsummery(7, 5):
