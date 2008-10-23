@@ -80,7 +80,14 @@ if __name__ == '__main__':
                    actions[ta] = actions.get(ta, 0) + tm 
             validtime = sum(actions[task] for task in actions if not task.endswith('**'))
             wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-            print "Usefull time     %2i hours %2i minutes"%(validtime/60, validtime%60)
-            print "Wasted  time     %2i hours %2i minutes"%(wasted/60, wasted%60)
+            togo = len(valid)*7*60 - validtime
+            print "Over the %i days you worked in the last week you."%len(valid)
+            print "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
+            print "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
+            print "You should have worked %i hours."%(7*len(valid), )
+            if togo > 0:
+                print "To still do this you would have to work a further %i hours  %i today"%(togo/60, togo%60)
+            else:
+                print "Congratulations. have a rest."
     else:
         logmessage(sys.argv[1], todaysfile)
