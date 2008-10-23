@@ -35,28 +35,24 @@ def groupeddisplay(log):
         yield task, tt
 
 
-def basicdisplay(log):
+def basicdisplay(log, aim=7):
     for t, m in log:
         yield "%40s %s"%(time.ctime(time.mktime(t)), m)
     yield ''
     for task, tm in groupeddisplay(log):
         yield "% 40s %2i:%02i"%(task, tm/60, tm%60)
+    yield ''
+    for line in summerydisplay(log, aim):
+        yield line
+
+
+def summerydisplay(log, aim=7):
     validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - time.mktime(mostrecent))/60
+    togo = aim*60 - validtime
     yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
     yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
-    togo = 7*60 - validtime
-    yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
-
-
-def summerydisplay(log):
-    validtime = sum(tm for task, tm in groupeddisplay(log) if not task.endswith('**'))
-    mostrecent = max(i[0] for i in log)
-    age = int(time.time() - time.mktime(mostrecent))/60
-    yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
-    yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
-    togo = 7*60 - validtime
     yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
 
 
