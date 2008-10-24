@@ -86,9 +86,11 @@ def longsummery(days, workingdays, aim):
     valid = 0
     actions = {}
     for day in range(days):
+        flag = 0
         for ta, tm in groupeddisplay(parze(basedir, day)):
-           actions[ta] = actions.get(ta, 0) + tm 
-        valid += 1
+            flag = 1
+            actions[ta] = actions.get(ta, 0) + tm 
+        valid += flag
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     togo = min(workingdays, valid)*aim*60 - validtime
@@ -109,12 +111,12 @@ def longsummery(days, workingdays, aim):
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/.donemanager')
     if len(sys.argv) < 2:
-        log = [(t, m) for t, m in parze(base)]
+        log = [(t, m) for t, m in parze(basedir)]
         for line in basicdisplay(log, DAILYHOURS):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
-            log = [(t, m) for t, m in parze(base)]
+            log = [(t, m) for t, m in parze(basedir)]
             for line in daysummery(log, DAILYHOURS):
                 print line
         if sys.argv[1] == '-w':
