@@ -27,11 +27,11 @@ def parze(basedir, age=0):
             for l in source:
                 t, m = l[:24].strip(), l[24:].strip()
                 if lm and m != lm:
-                    yield time.strptime(lt), lm
+                    yield time.mktime(time.strptime(lt)), lm
                 lm = m
                 lt = t
             if lm and lt:
-                yield time.strptime(lt), lm
+                yield time.mktime(time.strptime(lt)), lm
 
 
 def groupeddisplay(log):
@@ -39,7 +39,7 @@ def groupeddisplay(log):
     last = None
     for t, m in log:
         if last:
-            totals[m] = totals.get(m, 0) + time.mktime(t) - time.mktime(last)
+            totals[m] = totals.get(m, 0) + t - last
         last = t
     for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
         tt = int(totals[task]/60)
@@ -49,7 +49,7 @@ def groupeddisplay(log):
 def basicdisplay(log, aim):
     """aim is the number of hours that should be worked over this time period."""
     for t, m in log:
-        yield "%40s %s %s"%(time.ctime(time.mktime(t)), '*' if m.endswith('**') else ' ', m.rstrip('* '))
+        yield "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
     yield ''
     for task, tm in groupeddisplay(log):
         yield "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
@@ -66,7 +66,7 @@ def daysummery(log, aim):
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     mostrecent = max(i[0] for i in log)
-    age = int(time.time() - time.mktime(mostrecent))/60
+    age = int(time.time() - mostrecent)/60
     togo = aim*60 - validtime
     yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
     yield "Wasted time            %2i hours %2i minutes"%(wasted/60, wasted%60)
