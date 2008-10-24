@@ -1,5 +1,4 @@
 set efective midnight in config file.
 set aimed work hours in config file.
 try and guide towards using the same tasks repeatedly.
-move over to other time lib to make moving arround easier.
 set working week in config file.
