@@ -9,22 +9,29 @@ WORKWEEK = 5
 DAILYHOURS = 7
 
 
-def logmessage(message, fn):
+def logmessage(message, basedir):
+    if not os.path.exists(basedir):
+       os.mkdir(basedir)
+    fn = time.strftime(basedir+'/%Y%m%d.txt')
     with open(fn, 'a') as sink:
         sink.write('%s %s\n'%(time.ctime(), message))
 
 
-def parze(fn):
-    with open(fn) as source:
-        lt, lm = None, None
-        for l in source:
-            t, m = l[:24].strip(), l[24:].strip()
-            if lm and m != lm:
+def parze(basedir, age=0):
+    if not age:
+        if not os.path.exists(basedir):
+           os.mkdir(basedir)
+        fn = time.strftime(basedir+'/%Y%m%d.txt')
+        with open(fn) as source:
+            lt, lm = None, None
+            for l in source:
+                t, m = l[:24].strip(), l[24:].strip()
+                if lm and m != lm:
+                    yield time.strptime(lt), lm
+                lm = m
+                lt = t
+            if lm and lt:
                 yield time.strptime(lt), lm
-            lm = m
-            lt = t
-        if lm and lt:
-            yield time.strptime(lt), lm
 
 
 def groupeddisplay(log):
@@ -76,22 +83,23 @@ def longsummery(days, workingdays, aim):
         days : the number of days to search back for existing files.
         workingdays : the aimed numner of days to work in this time.
     """
-    valid = [todaysfile]
+    valid = 0
     actions = {}
-    for day in valid:
-        for ta, tm in groupeddisplay(parze(day)):
+    for day in range(days):
+        for ta, tm in groupeddisplay(parze(basedir, day)):
            actions[ta] = actions.get(ta, 0) + tm 
+        valid += 1
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-    togo = min(workingdays, len(valid))*aim*60 - validtime
-    yield "Over the %i days you worked %i."%(days, len(valid))
-    if len(valid) >= days:
+    togo = min(workingdays, valid)*aim*60 - validtime
+    yield "Over the %i days you worked %i."%(days, valid)
+    if valid >= days:
         yield "Welldone, you are aimed for %i days."%workingdays
     else:
-        yield "You are aiming for %i days so you are %i short"%(workingdays, workingdays-len(valid))
+        yield "You are aiming for %i days so you are %i short"%(workingdays, workingdays-valid)
     yield "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
     yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
-    yield "You should have worked %i hours."%(aim*len(valid), )
+    yield "You should have worked %i hours."%(aim*valid, )
     if togo > 0:
         yield "To still do this you would have to work a further %i hours  %i today"%(togo/60, togo%60)
     else:
@@ -99,17 +107,14 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
-    BASEDIR = os.path.expanduser('~/.donemanager')
-    if not os.path.exists(BASEDIR):
-       os.mkdir(BASEDIR)
-    todaysfile = time.strftime(BASEDIR+'/%Y%m%d.txt')
+    basedir = os.path.expanduser('~/.donemanager')
     if len(sys.argv) < 2:
-        log = [(t, m) for t, m in parze(todaysfile)]
+        log = [(t, m) for t, m in parze(base)]
         for line in basicdisplay(log, DAILYHOURS):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
-            log = [(t, m) for t, m in parze(todaysfile)]
+            log = [(t, m) for t, m in parze(base)]
             for line in daysummery(log, DAILYHOURS):
                 print line
         if sys.argv[1] == '-w':
@@ -119,4 +124,4 @@ if __name__ == '__main__':
             for line in longsummery(7*4, WORKWEEK*4, DAILYHOURS):
                 print line
     else:
-        logmessage(sys.argv[1], todaysfile)
+        logmessage("".join(sys.argv[1:]), basedir)
