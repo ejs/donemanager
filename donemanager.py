@@ -96,6 +96,8 @@ def longsummery(days, workingdays, aim):
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     togo = min(workingdays, valid)*aim*60 - validtime
+    for task in sorted(actions, key=lambda t:actions[t], reverse=True):
+        yield "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', actions[task]/60, actions[task]%60)
     yield "Over the %i days you worked %i."%(days, valid)
     if valid >= days:
         yield "Welldone, you are aimed for %i days."%workingdays
