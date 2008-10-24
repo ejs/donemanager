@@ -3,6 +3,7 @@ from __future__ import with_statement
 import time
 import sys
 import os, os.path
+import datetime
 
 
 WORKWEEK = 5
@@ -18,10 +19,11 @@ def logmessage(message, basedir):
 
 
 def parze(basedir, age=0):
-    if not age:
-        if not os.path.exists(basedir):
-           os.mkdir(basedir)
-        fn = time.strftime(basedir+'/%Y%m%d.txt')
+    if not os.path.exists(basedir):
+       os.mkdir(basedir)
+    date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
+    fn = date.strftime(basedir+'/%Y%m%d.txt')
+    if os.path.exists(fn):
         with open(fn) as source:
             lt, lm = None, None
             for l in source:
