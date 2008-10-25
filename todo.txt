@@ -1,2 +1,4 @@
 set efective midnight in config file.
 try and guide towards using the same tasks repeatedly.
+allow coments to be added to descriptions that don't affect grouping or group display
+ignore case (and maybe punctuation) when combining events
