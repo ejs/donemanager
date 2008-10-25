@@ -138,7 +138,6 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
-    WORKWEEK = 5
     DAILYHOURS = 7
 
     basedir = os.path.expanduser('~/.donemanager')
@@ -157,10 +156,10 @@ if __name__ == '__main__':
             for line in daysummery(log, DAILYHOURS):
                 print line
         if sys.argv[1] == '-w':
-            for line in longsummery(7, WORKWEEK, DAILYHOURS):
+            for line in longsummery(7, settings['days_per_week'], DAILYHOURS):
                 print line
         if sys.argv[1] == '-m':
-            for line in longsummery(7*4, WORKWEEK*4, DAILYHOURS):
+            for line in longsummery(7*4, settings['days_per_week']*4, DAILYHOURS):
                 print line
     else:
         logmessage("".join(sys.argv[1:]), basedir)
