@@ -21,6 +21,9 @@ class Settings(object):
     def __setitem__(self, item, value):
         self.settings[item] = value
 
+    def __len__(self):
+        return len(self.settings)
+
     def load_settings(self):
         try:
             with open(self.filename, 'r') as source:
@@ -140,7 +143,7 @@ def longsummery(days, workingdays, aim):
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/.donemanager')
     settings = Settings(basedir+'/config.yaml')
-    if not settings.settings:
+    if not settings:
         settings['days_per_week'] = 5
         settings['hours_per_day'] = 7
         settings.save_settings()
