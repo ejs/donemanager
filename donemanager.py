@@ -138,8 +138,6 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
-    DAILYHOURS = 7
-
     basedir = os.path.expanduser('~/.donemanager')
     settings = Settings(basedir+'/config.yaml')
     if not settings.settings:
@@ -148,18 +146,18 @@ if __name__ == '__main__':
         settings.save_settings()
     if len(sys.argv) < 2:
         log = [(t, m) for t, m in parze(basedir)]
-        for line in basicdisplay(log, DAILYHOURS):
+        for line in basicdisplay(log, settings['hours_per_day']):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
             log = [(t, m) for t, m in parze(basedir)]
-            for line in daysummery(log, DAILYHOURS):
+            for line in daysummery(log, settings['hours_per_day']):
                 print line
         if sys.argv[1] == '-w':
-            for line in longsummery(7, settings['days_per_week'], DAILYHOURS):
+            for line in longsummery(7, settings['days_per_week'], settings['hours_per_day']):
                 print line
         if sys.argv[1] == '-m':
-            for line in longsummery(7*4, settings['days_per_week']*4, DAILYHOURS):
+            for line in longsummery(7*4, settings['days_per_week']*4, settings['hours_per_day']):
                 print line
     else:
         logmessage("".join(sys.argv[1:]), basedir)
