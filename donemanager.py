@@ -47,6 +47,11 @@ def logmessage(message, basedir):
         sink.write('%s %s\n'%(time.ctime(), message))
 
 
+def clean(s):
+    return s.lower()
+
+
+
 def parze(basedir, age=0):
     if not os.path.exists(basedir):
        os.mkdir(basedir)
@@ -57,9 +62,9 @@ def parze(basedir, age=0):
             lt, lm = None, None
             for l in source:
                 t, m = l[:24].strip(), l[24:].strip()
-                if lm and m != lm:
+                if lm and clean(m) != lm:
                     yield time.mktime(time.strptime(lt)), lm
-                lm = m
+                lm = clean(m)
                 lt = t
             if lm and lt:
                 yield time.mktime(time.strptime(lt)), lm
@@ -71,8 +76,7 @@ def groupeddisplay(log):
     last = None
     for t, m in log:
         if last:
-            clean = m.lower()
-            k = keys.setdefault(clean, m)
+            k = keys.setdefault(clean(m), m)
             totals[k] = totals.get(k, 0) + t - last
         last = t
     for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
