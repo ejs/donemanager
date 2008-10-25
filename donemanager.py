@@ -4,17 +4,13 @@ import time
 import sys
 import os, os.path
 import datetime
-
-
-WORKWEEK = 5
-DAILYHOURS = 7
+import yaml
 
 
 class Settings(object):
     def __init__(self, filename):
         self.filename = filename
         self.load_settings()
-        print self.settings
 
     def __getitem__(self, item):
         return self.settings[item]
@@ -142,7 +138,15 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
+    WORKWEEK = 5
+    DAILYHOURS = 7
+
     basedir = os.path.expanduser('~/.donemanager')
+    settings = Settings(basedir+'/config.yaml')
+    if not settings.settings:
+        settings['days_per_week'] = 5
+        settings['hours_per_day'] = 7
+        settings.save_settings()
     if len(sys.argv) < 2:
         log = [(t, m) for t, m in parze(basedir)]
         for line in basicdisplay(log, DAILYHOURS):
