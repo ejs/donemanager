@@ -10,6 +10,35 @@ WORKWEEK = 5
 DAILYHOURS = 7
 
 
+class Settings(object):
+    def __init__(self, filename):
+        self.filename = filename
+        self.load_settings()
+        print self.settings
+
+    def __getitem__(self, item):
+        return self.settings[item]
+
+    def __contains__(self, item):
+        return item in self.settings
+
+    def __setitem__(self, item, value):
+        self.settings[item] = value
+
+    def load_settings(self):
+        try:
+            with open(self.filename, 'r') as source:
+                self.settings = yaml.load(source)
+            if not self.settings:
+                self.settings = {}
+        except:
+            self.settings = {}
+
+    def save_settings(self):
+        with open(self.filename,'w') as sink:
+            yaml.dump(self.settings, sink)
+
+
 def logmessage(message, basedir):
     if not os.path.exists(basedir):
        os.mkdir(basedir)
