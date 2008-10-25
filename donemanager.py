@@ -67,10 +67,13 @@ def parze(basedir, age=0):
 
 def groupeddisplay(log):
     totals = {}
+    keys = {}
     last = None
     for t, m in log:
         if last:
-            totals[m] = totals.get(m, 0) + t - last
+            clean = m.lower()
+            k = keys.setdefault(clean, m)
+            totals[k] = totals.get(k, 0) + t - last
         last = t
     for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
         tt = int(totals[task]/60)
