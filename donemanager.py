@@ -41,7 +41,7 @@ class Settings(object):
 def logmessage(message, basedir):
     if not os.path.exists(basedir):
        os.mkdir(basedir)
-    date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
+    date = datetime.datetime.now()-datetime.timedelta(hours=6)
     fn = date.strftime(basedir+'/%Y%m%d.txt')
     with open(fn, 'a') as sink:
         sink.write('%s %s\n'%(time.ctime(), message))
