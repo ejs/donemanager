@@ -48,7 +48,7 @@ def logmessage(message, basedir):
 
 
 def clean(s):
-    return s.lower()
+    return ''.join(c for c in s.lower() if c.isalnum())
 
 
 
@@ -62,9 +62,9 @@ def parze(basedir, age=0):
             lt, lm = None, None
             for l in source:
                 t, m = l[:24].strip(), l[24:].strip()
-                if lm and clean(m) != lm:
+                if lm and clean(m) != clean(lm):
                     yield time.mktime(time.strptime(lt)), lm
-                lm = clean(m)
+                lm = m
                 lt = t
             if lm and lt:
                 yield time.mktime(time.strptime(lt)), lm
