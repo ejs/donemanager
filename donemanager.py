@@ -145,7 +145,7 @@ def longsummery(days, workingdays, aim):
     yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
     yield "You should have worked %i hours."%(aim*valid, )
     if togo > 0:
-        yield "To still do this you would have to work a further %i hours  %i today"%(togo/60, togo%60)
+        yield "To still do this you would have to work a further %i hours %i minutes today"%(togo/60, togo%60)
     else:
         yield "Congratulations. have a rest."
 
