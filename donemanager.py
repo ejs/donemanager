@@ -123,11 +123,13 @@ def longsummery(days, workingdays, aim):
     """
     valid = 0
     actions = {}
+    keys = {}
     for day in range(days):
         flag = 0
         for ta, tm in groupeddisplay(parze(basedir, day)):
             flag = 1
-            actions[ta] = actions.get(ta, 0) + tm 
+            k = keys.setdefault(clean(ta), ta)
+            actions[k] = actions.get(k, 0) + tm 
         valid += flag
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
