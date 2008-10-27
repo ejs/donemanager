@@ -172,4 +172,4 @@ if __name__ == '__main__':
             for line in longsummery(7*4, settings['days_per_week']*4, settings['hours_per_day']):
                 print line
     else:
-        logmessage("".join(sys.argv[1:]), basedir)
+        logmessage(" ".join(sys.argv[1:]), basedir)
