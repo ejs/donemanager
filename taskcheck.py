@@ -20,6 +20,12 @@ def summery(basedir, period):
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
 
 
+def aim(basedir, period):
+    pass
+    # load from file formated task name\tdaylow-high\tweeklow-high\tmonthlow-high
+    # chose period to check over depending on number of days 'active'
+    # return dict of clean -> (low, high)
+
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/.donemanager')
     if len(sys.argv) > 1 and sys.argv[1].startswith('-'):
