@@ -45,20 +45,19 @@ def aim(basedir, period, high):
 
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/.donemanager')
-    if len(sys.argv) > 1 and sys.argv[1].startswith('-'):
-        if sys.argv[1] == '-d':
-            log = summery(basedir, 1)
-            target = aim(basedir, 1, 1)
-        elif sys.argv[1] == '-w':
-            log = summery(basedir, 7)
-            target = aim(basedir, 7, 5)
-        elif sys.argv[1] == '-m':
-            log = summery(basedir, 7*4)
-            target = aim(basedir, 7*4, 5*4)
-        for l in log:
-            cl = donemanager.clean(l)
-            if cl in target:
-                if target[cl][0] and log[l] < target[cl][0]:
-                    print "To little time spent on %s (%i should be at least %i)"%(l, log[l], target[cl][0])
-                elif target[cl][1] and log[l] > target[cl][1]:
-                    print "To  much  time spent on %s (%i should be at most  %i)"%(l, log[l], target[cl][1])
+    if len(sys.argv) < 2  or sys.argv[1] == '-d':
+        log = summery(basedir, 1)
+        target = aim(basedir, 1, 1)
+    elif sys.argv[1] == '-w':
+        log = summery(basedir, 7)
+        target = aim(basedir, 7, 5)
+    elif sys.argv[1] == '-m':
+        log = summery(basedir, 7*4)
+        target = aim(basedir, 7*4, 5*4)
+    for l in log:
+        cl = donemanager.clean(l)
+        if cl in target:
+            if target[cl][0] and log[l] < target[cl][0]:
+                print "To little time spent on %s (%i should be at least %i)"%(l, log[l], target[cl][0])
+            elif target[cl][1] and log[l] > target[cl][1]:
+                print "To  much  time spent on %s (%i should be at most  %i)"%(l, log[l], target[cl][1])
