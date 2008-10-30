@@ -26,7 +26,7 @@ def agedfile(basedir, age):
     return os.path.exists(fn)
 
 
-def aim(basedir, period):
+def aim(basedir, period, high):
     def convert(s):
         if s == '-':
             return 0
@@ -35,6 +35,7 @@ def aim(basedir, period):
             return int(a)*60+int(b)
 
     active = sum(1 for i in range(period) if agedfile(basedir, i))
+    active = min(active, high)
     with open(basedir+'/caps.txt', 'r') as source:
         caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
         caps = dict((donemanager.clean(a), [active*convert(b), active*convert(c)]) for a, b, c in caps)
@@ -46,13 +47,13 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1].startswith('-'):
         if sys.argv[1] == '-d':
             log = summery(basedir, 1)
-            target = aim(basedir, 1)
+            target = aim(basedir, 1, 1)
         elif sys.argv[1] == '-w':
             log = summery(basedir, 7)
-            target = aim(basedir, 7)
+            target = aim(basedir, 7, 5)
         elif sys.argv[1] == '-m':
             log = summery(basedir, 7*4)
-            target = aim(basedir, 7*4)
+            target = aim(basedir, 7*4, 5*4)
         for l in log:
             print l, log[l]
         print target
