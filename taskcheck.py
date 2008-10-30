@@ -39,6 +39,7 @@ def aim(basedir, period, high):
     with open(basedir+'/caps.txt', 'r') as source:
         caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
         caps = dict((donemanager.clean(a), [active*convert(b), active*convert(c)]) for a, b, c in caps)
+        # add check that the low point is below the high point
     return caps
 
 
@@ -55,5 +56,9 @@ if __name__ == '__main__':
             log = summery(basedir, 7*4)
             target = aim(basedir, 7*4, 5*4)
         for l in log:
-            print l, log[l]
-        print target
+            cl = donemanager.clean(l)
+            if cl in target:
+                if target[cl][0] and log[l] < target[cl][0]:
+                    print "To little time spent on %s (%i should be at least %i)"%(l, log[l], target[cl][0])
+                elif target[cl][1] and log[l] > target[cl][1]:
+                    print "To  much  time spent on %s (%i should be at least %i)"%(l, log[l], target[cl][1])
