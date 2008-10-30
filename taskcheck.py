@@ -27,27 +27,32 @@ def agedfile(basedir, age):
 
 
 def aim(basedir, period):
-    return sum(1 for i in range(period) if agedfile(basedir, i))
-    # load from file formated task name\tdaylow-high\tweeklow-high\tmonthlow-high
-    # chose period to check over depending on number of days 'active'
-    # simplify start by only useing format 'task name\tdaylow-high' and multiplying by active days.
-    # return dict of clean -> (low, high)
+    def convert(s):
+        if s == '-':
+            return 0
+        else:
+            a, b = s.split(':')
+            return int(a)*60+int(b)
+
+    active = sum(1 for i in range(period) if agedfile(basedir, i))
+    with open(basedir+'/caps.txt', 'r') as source:
+        caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
+        caps = dict((donemanager.clean(a), [active*convert(b), active*convert(c)]) for a, b, c in caps)
+    return caps
+
 
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/.donemanager')
     if len(sys.argv) > 1 and sys.argv[1].startswith('-'):
-        if sys.argv[1] == '-s':
+        if sys.argv[1] == '-d':
             log = summery(basedir, 1)
-            print aim(basedir, 1)
+            target = aim(basedir, 1)
         elif sys.argv[1] == '-w':
             log = summery(basedir, 7)
-            print aim(basedir, 7)
+            target = aim(basedir, 7)
         elif sys.argv[1] == '-m':
             log = summery(basedir, 7*4)
-            print aim(basedir, 7*4)
-        else:
-            print "Defaulting to single day check, use flags for other periods."
-            print
-            log = summery(basedir, 1)
+            target = aim(basedir, 7*4)
         for l in log:
             print l, log[l]
+        print target
