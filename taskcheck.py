@@ -63,4 +63,4 @@ if __name__ == '__main__':
             elif target[l][1] and log[cl] > target[l][1]:
                 print "To  much  time spent on %s (%i should be at most  %i)"%(l, log[cl], target[l][1])
         elif target[l][0]:
-            print "You should have spend some time on %s (at least %i)"%(l, target[l][0])
+            print "You should spend some time on %s (aiming for at least %i)"%(l, target[l][0])
