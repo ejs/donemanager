@@ -38,7 +38,7 @@ def aim(basedir, period, high):
     active = min(active, high)
     with open(basedir+'/caps.txt', 'r') as source:
         caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
-        caps = dict((donemanager.clean(a), [active*convert(b), active*convert(c)]) for a, b, c in caps)
+        caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
         # add check that the low point is below the high point
     return caps
 
@@ -54,10 +54,13 @@ if __name__ == '__main__':
     elif sys.argv[1] == '-m':
         log = summery(basedir, 7*4)
         target = aim(basedir, 7*4, 5*4)
-    for l in log:
+    log = dict((donemanager.clean(n), log[n]) for n in log)
+    for l in target:
         cl = donemanager.clean(l)
-        if cl in target:
-            if target[cl][0] and log[l] < target[cl][0]:
-                print "To little time spent on %s (%i should be at least %i)"%(l, log[l], target[cl][0])
-            elif target[cl][1] and log[l] > target[cl][1]:
-                print "To  much  time spent on %s (%i should be at most  %i)"%(l, log[l], target[cl][1])
+        if cl in log:
+            if target[l][0] and log[cl] < target[l][0]:
+                print "To little time spent on %s (%i should be at least %i)"%(l, log[cl], target[l][0])
+            elif target[l][1] and log[cl] > target[l][1]:
+                print "To  much  time spent on %s (%i should be at most  %i)"%(l, log[cl], target[l][1])
+        elif target[l][0]:
+            print "You should have spend some time on %s (at least %i)"%(l, target[l][0])
