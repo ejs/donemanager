@@ -59,8 +59,8 @@ if __name__ == '__main__':
         cl = donemanager.clean(l)
         if cl in log:
             if target[l][0] and log[cl] < target[l][0]:
-                print "To little time spent on %s (%i should be at least %i)"%(l, log[cl], target[l][0])
+                print "To little time spent on %s (%s should be at least %s)"%(l, donemanager.long_time(log[cl]), donemanager.long_time(target[l][0]))
             elif target[l][1] and log[cl] > target[l][1]:
-                print "To  much  time spent on %s (%i should be at most  %i)"%(l, log[cl], target[l][1])
+                print "To  much  time spent on %s (%s should be at most %s)"%(l, donemanager.long_time(log[cl]), donemanager.long_time(target[l][1]))
         elif target[l][0]:
-            print "You should spend some time on %s (aiming for at least %i)"%(l, target[l][0])
+            print "You should spend some time on %s (aiming for at least %s)"%(l, donemanager.long_time(target[l][0]))

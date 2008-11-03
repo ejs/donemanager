@@ -51,6 +51,15 @@ def clean(s):
     return ''.join(c for c in s.lower() if c.isalnum())
 
 
+def long_time(t):
+    if t < 60:
+        return '%i minutes'%t
+    elif not t%60:
+        return '%i hours'%(t/60)
+    else:
+        return '%i hours %i minutes'%(t/60, t%60)
+
+
 def parze(basedir, age=0):
     if not os.path.exists(basedir):
        os.mkdir(basedir)
@@ -105,14 +114,14 @@ def daysummery(log, aim):
     mostrecent = max(i[0] for i in log)
     age = int(time.time() - mostrecent)/60
     togo = aim*60 - validtime
-    yield "Usefull time today     %2i hours %2i minutes"%(validtime/60, validtime%60)
-    yield "Wasted time            %2i hours %2i minutes"%(wasted/60, wasted%60)
+    yield "Usefull time today     %s"%long_time(validtime)
+    yield "Wasted time            %s"%long_time(wasted)
     if togo > 0:
-        yield "You should still work  %2i hours %2i minutes"%(togo/60, togo%60)
+        yield "Only %s to go today"%long_time(togo)
     else:
         yield "Congratulations. have a rest."
     yield ''
-    yield "Time since last action %2i hours %2i minutes"%(age/60, age%60)
+    yield "Time since last action %s ago"%long_time(age)
 
 
 def longsummery(days, workingdays, aim):
@@ -135,16 +144,13 @@ def longsummery(days, workingdays, aim):
     togo = min(workingdays, valid)*aim*60 - validtime
     for task in sorted(actions, key=lambda t:actions[t], reverse=True):
         yield "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', actions[task]/60, actions[task]%60)
-    yield "Over the %i days you worked %i."%(days, valid)
-    if valid >= days:
-        yield "Welldone, you are aimed for %i days."%workingdays
-    else:
-        yield "You are aiming for %i days so you are %i short"%(workingdays, workingdays-valid)
-    yield "Used   time     %2i hours %2i minutes"%(validtime/60, validtime%60)
-    yield "Wasted time     %2i hours %2i minutes"%(wasted/60, wasted%60)
+    yield "Over the last %i days you worked %i.You are aiming for %i."%(days, valid, workingdays)
+    yield "Welldone" if valid >= days else "Only %i short"%(workingdays-valid)
+    yield "Used   time     %s"%long_time(validtime)
+    yield "Wasted time     %s"%long_time(wasted)
     yield "You should have worked %i hours."%(aim*valid, )
     if togo > 0:
-        yield "To still do this you would have to work a further %i hours %i minutes today"%(togo/60, togo%60)
+        yield "Only %s to go (today)."%long_time(togo)
     else:
         yield "Congratulations. have a rest."
 
