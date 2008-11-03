@@ -55,6 +55,7 @@ if __name__ == '__main__':
         log = summery(basedir, 7*4)
         target = aim(basedir, 7*4, 5*4)
     log = dict((donemanager.clean(n), log[n]) for n in log)
+
     for l in target:
         cl = donemanager.clean(l)
         if cl in log:
