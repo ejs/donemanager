@@ -45,6 +45,12 @@ def logmessage(message, basedir):
     fn = date.strftime(basedir+'/%Y%m%d.txt')
     with open(fn, 'a') as sink:
         sink.write('%s %s\n'%(time.ctime(), message))
+    try:
+        import rpyc
+        server = rpyc.connect_by_service('LISTENER')
+        server.root.message('%s %s\n'%(time.ctime(), message)
+    except:
+        pass
 
 
 def clean(s):
