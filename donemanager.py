@@ -48,7 +48,7 @@ def logmessage(message, basedir):
     try:
         import rpyc
         server = rpyc.connect_by_service('LISTENER')
-        server.root.message('%s %s\n'%(time.ctime(), message)
+        server.root.message('%s %s\n'%(time.ctime(), message))
     except:
         pass
 
