@@ -3,11 +3,12 @@ import donemanager
 import os.path
 
 class ListenerService(rpyc.Service):
-    def loggin(self):
+    def on_connect(self):
         self.basedir = os.path.expanduser('~/.donemanager')
 
     def exposed_log(self, message):
-        donemanager.logmessage(message, self.basedir)
+        print message
+        donemanager.clean_log(message, self.basedir)
 
 
 if __name__ == '__main__':

@@ -38,19 +38,21 @@ class Settings(object):
             yaml.dump(self.settings, sink)
 
 
-def logmessage(message, basedir):
+def clean_log(message, basedir):
     if not os.path.exists(basedir):
        os.mkdir(basedir)
     date = datetime.datetime.now()-datetime.timedelta(hours=6)
     fn = date.strftime(basedir+'/%Y%m%d.txt')
     with open(fn, 'a') as sink:
-        sink.write('%s %s\n'%(time.ctime(), message))
+        sink.write(message)
+
+def logmessage(message, basedir):
     try:
         import rpyc
         server = rpyc.connect_by_service('LISTENER')
-        server.root.message('%s %s\n'%(time.ctime(), message))
+        server.root.log('%s %s\n'%(time.ctime(), message))
     except:
-        pass
+        clean_log('%s %s\n'%(time.ctime(), message), basedir)
 
 
 def clean(s):
