@@ -44,15 +44,15 @@ def clean_log(message, basedir):
     date = datetime.datetime.now()-datetime.timedelta(hours=6)
     fn = date.strftime(basedir+'/%Y%m%d.txt')
     with open(fn, 'a') as sink:
-        sink.write(message)
+        sink.write('%s %s\n'%(time.ctime(), message))
 
 def logmessage(message, basedir):
     try:
         import rpyc
         server = rpyc.connect_by_service('LISTENER')
-        server.root.log('%s %s\n'%(time.ctime(), message))
+        server.root.log(message)
     except:
-        clean_log('%s %s\n'%(time.ctime(), message), basedir)
+        clean_log(message, basedir)
 
 
 def clean(s):
