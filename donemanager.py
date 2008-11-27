@@ -68,7 +68,7 @@ def long_time(t):
         return '%i hours %i minutes'%(t/60, t%60)
 
 
-def parze(basedir, age=0):
+def clean_parze(basedir, age=0):
     if not os.path.exists(basedir):
        os.mkdir(basedir)
     date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
@@ -84,6 +84,18 @@ def parze(basedir, age=0):
                 lt = t
             if lm and lt:
                 yield time.mktime(time.strptime(lt)), lm
+
+
+def parze(basedir, age=0):
+    try:
+        import rpyc
+        server = rpyc.connect_by_service('LISTENER')
+        for i in server.root.history(age):
+            yield i
+    except Exception, e:
+        print e
+        for i in clean_parze(basedir, age):
+            yield i
 
 
 def groupeddisplay(log):
