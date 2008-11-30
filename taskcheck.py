@@ -7,12 +7,12 @@ import datetime
 import yaml
 
 
-def summery(basedir, period):
+def summery(period):
     actions = {}
     keys = {}
     for day in range(period):
         flag = 0
-        for ta, tm in donemanager.groupeddisplay(donemanager.parze(basedir, day)):
+        for ta, tm in donemanager.groupeddisplay(donemanager.parze(day)):
             flag = 1
             k = keys.setdefault(donemanager.clean(ta), ta)
             actions[k] = actions.get(k, 0) + tm 
@@ -46,13 +46,13 @@ def aim(basedir, period, high):
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/.donemanager')
     if len(sys.argv) < 2  or sys.argv[1] == '-d':
-        log = summery(basedir, 1)
+        log = summery(1)
         target = aim(basedir, 1, 1)
     elif sys.argv[1] == '-w':
-        log = summery(basedir, 7)
+        log = summery(7)
         target = aim(basedir, 7, 5)
     elif sys.argv[1] == '-m':
-        log = summery(basedir, 7*4)
+        log = summery(7*4)
         target = aim(basedir, 7*4, 5*4)
     log = dict((donemanager.clean(n), log[n]) for n in log)
     for l in target:

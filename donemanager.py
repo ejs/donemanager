@@ -38,21 +38,18 @@ class Settings(object):
             yaml.dump(self.settings, sink)
 
 
-def clean_log(message, basedir):
-    if not os.path.exists(basedir):
-       os.mkdir(basedir)
-    date = datetime.datetime.now()-datetime.timedelta(hours=6)
-    fn = date.strftime(basedir+'/%Y%m%d.txt')
-    with open(fn, 'a') as sink:
-        sink.write('%s %s\n'%(time.ctime(), message))
+try:
+    import rpyc
+    server = rpyc.connect_by_service('LISTENER')
+    actor = server.root
+except:
+    import dmd
+    actor = dmd.ListenerService(None)
+    actor.on_connect()
 
-def logmessage(message, basedir):
-    try:
-        import rpyc
-        server = rpyc.connect_by_service('LISTENER')
-        server.root.log(message)
-    except:
-        clean_log(message, basedir)
+
+def logmessage(message):
+    actor.exposed_log(message)
 
 
 def clean(s):
@@ -68,34 +65,9 @@ def long_time(t):
         return '%i hours %i minutes'%(t/60, t%60)
 
 
-def clean_parze(basedir, age=0):
-    if not os.path.exists(basedir):
-       os.mkdir(basedir)
-    date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
-    fn = date.strftime(basedir+'/%Y%m%d.txt')
-    if os.path.exists(fn):
-        with open(fn) as source:
-            lt, lm = None, None
-            for l in source:
-                t, m = l[:24].strip(), l[24:].strip()
-                if lm and clean(m) != clean(lm):
-                    yield time.mktime(time.strptime(lt)), lm
-                lm = m
-                lt = t
-            if lm and lt:
-                yield time.mktime(time.strptime(lt)), lm
-
-
-def parze(basedir, age=0):
-    try:
-        import rpyc
-        server = rpyc.connect_by_service('LISTENER')
-        for i in server.root.history(age):
-            yield i
-    except Exception, e:
-        print e
-        for i in clean_parze(basedir, age):
-            yield i
+def parze(age=0):
+    for i in actor.exposed_history(age):
+        yield i
 
 
 def groupeddisplay(log):
@@ -128,7 +100,7 @@ def daysummery(log, aim):
     """aim is the number of hours that should be worked over this time period."""
     actions = {}
     for ta, tm in groupeddisplay(log):
-       actions[ta] = actions.get(ta, 0) + tm 
+       actions[ta] = actions.get(ta, 0) + tm
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     mostrecent = max(i[0] for i in log)
@@ -154,7 +126,7 @@ def longsummery(days, workingdays, aim):
     keys = {}
     for day in range(days):
         flag = 0
-        for ta, tm in groupeddisplay(parze(basedir, day)):
+        for ta, tm in groupeddisplay(parze(day)):
             flag = 1
             k = keys.setdefault(clean(ta), ta)
             actions[k] = actions.get(k, 0) + tm 
@@ -176,19 +148,18 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
-    basedir = os.path.expanduser('~/.donemanager')
-    settings = Settings(basedir+'/config.yaml')
+    settings = Settings(actor.basedir+'/config.yaml')
     if not settings:
         settings['days_per_week'] = 5
         settings['hours_per_day'] = 7
         settings.save_settings()
     if len(sys.argv) < 2:
-        log = [(t, m) for t, m in parze(basedir)]
+        log = [(t, m) for t, m in parze()]
         for line in basicdisplay(log, settings['hours_per_day']):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
-            log = [(t, m) for t, m in parze(basedir)]
+            log = [(t, m) for t, m in parze()]
             for line in daysummery(log, settings['hours_per_day']):
                 print line
         if sys.argv[1] == '-w':
@@ -198,4 +169,4 @@ if __name__ == '__main__':
             for line in longsummery(7*4, settings['days_per_week']*4, settings['hours_per_day']):
                 print line
     else:
-        logmessage(" ".join(sys.argv[1:]), basedir)
+        logmessage(" ".join(sys.argv[1:]))
