@@ -13,7 +13,7 @@ def clean(s):
 
 class ListenerService(rpyc.Service):
     def on_connect(self):
-        self.basedir = os.path.expanduser('~/.donemanager')
+        self.exposed_basedir = os.path.expanduser('~/.donemanager')
 
     def exposed_log(self, message):
         print message
@@ -36,10 +36,10 @@ class ListenerService(rpyc.Service):
                     yield time.mktime(time.strptime(lt)), lm
 
     def _get_file(self, age=0):
-        if not os.path.exists(self.basedir):
-           os.mkdir(self.basedir)
+        if not os.path.exists(self.exposed_basedir):
+           os.mkdir(self.exposed_basedir)
         date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
-        return date.strftime(self.basedir+'/%Y%m%d.txt')
+        return date.strftime(self.exposed_basedir+'/%Y%m%d.txt')
 
 
 if __name__ == '__main__':

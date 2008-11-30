@@ -2,8 +2,6 @@
 from __future__ import with_statement
 import time
 import sys
-import os, os.path
-import datetime
 import yaml
 
 
@@ -148,7 +146,7 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
-    settings = Settings(actor.basedir+'/config.yaml')
+    settings = Settings(actor.exposed_basedir+'/config.yaml')
     if not settings:
         settings['days_per_week'] = 5
         settings['hours_per_day'] = 7
