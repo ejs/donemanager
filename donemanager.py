@@ -1,39 +1,5 @@
 #!/usr/bin/env python
-from __future__ import with_statement
 import time
-import sys
-import yaml
-
-
-class Settings(object):
-    def __init__(self, filename):
-        self.filename = filename
-        self.load_settings()
-
-    def __getitem__(self, item):
-        return self.settings[item]
-
-    def __contains__(self, item):
-        return item in self.settings
-
-    def __setitem__(self, item, value):
-        self.settings[item] = value
-
-    def __len__(self):
-        return len(self.settings)
-
-    def load_settings(self):
-        try:
-            with open(self.filename, 'r') as source:
-                self.settings = yaml.load(source)
-            if not self.settings:
-                self.settings = {}
-        except:
-            self.settings = {}
-
-    def save_settings(self):
-        with open(self.filename,'w') as sink:
-            yaml.dump(self.settings, sink)
 
 
 try:
@@ -102,7 +68,7 @@ def daysummery(log, aim):
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     mostrecent = max(i[0] for i in log)
-    age = int(time.time() - mostrecent)/60
+    age = int(actor.exposed_now() - mostrecent)/60
     togo = aim*60 - validtime
     yield "Usefull time today     %s"%long_time(validtime)
     yield "Wasted time            %s"%long_time(wasted)
@@ -146,11 +112,8 @@ def longsummery(days, workingdays, aim):
 
 
 if __name__ == '__main__':
-    settings = Settings(actor.exposed_basedir+'/config.yaml')
-    if not settings:
-        settings['days_per_week'] = 5
-        settings['hours_per_day'] = 7
-        settings.save_settings()
+    import sys
+    settings = actor.exposed_settings
     if len(sys.argv) < 2:
         log = [(t, m) for t, m in parze()]
         for line in basicdisplay(log, settings['hours_per_day']):

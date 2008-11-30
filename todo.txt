@@ -1,2 +1,3 @@
 set efective midnight in config file.
 allow coments to be added to descriptions that don't affect grouping or group display
+move to one of datetime or time
