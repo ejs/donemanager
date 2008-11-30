@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import time
+import dmd
 
 
 try:
@@ -7,13 +8,8 @@ try:
     server = rpyc.connect_by_service('LISTENER')
     actor = server.root
 except:
-    import dmd
     actor = dmd.ListenerService(None)
     actor.on_connect()
-
-
-def clean(s):
-    return ''.join(c for c in s.lower() if c.isalnum())
 
 
 def long_time(t):
@@ -31,7 +27,7 @@ def groupeddisplay(log):
     last = None
     for t, m in log:
         if last:
-            k = keys.setdefault(clean(m), m)
+            k = keys.setdefault(dmd.clean(m), m)
             totals[k] = totals.get(k, 0) + t - last
         last = t
     for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
@@ -83,7 +79,7 @@ def longsummery(days, workingdays, aim):
         flag = 0
         for ta, tm in groupeddisplay(actor.exposed_history(day)):
             flag = 1
-            k = keys.setdefault(clean(ta), ta)
+            k = keys.setdefault(dmd.clean(ta), ta)
             actions[k] = actions.get(k, 0) + tm 
         valid += flag
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
