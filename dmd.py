@@ -56,7 +56,7 @@ class ListenerService(rpyc.Service):
         with open(self._get_file(), 'a') as sink:
             sink.write('%s %s\n'%(time.ctime(), message))
 
-    def exposed_history(self, age):
+    def exposed_history(self, age=0):
         fn = self._get_file(age)
         if os.path.exists(fn):
             with open(fn) as source:

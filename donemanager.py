@@ -12,10 +12,6 @@ except:
     actor.on_connect()
 
 
-def logmessage(message):
-    actor.exposed_log(message)
-
-
 def clean(s):
     return ''.join(c for c in s.lower() if c.isalnum())
 
@@ -27,11 +23,6 @@ def long_time(t):
         return '%i hours'%(t/60)
     else:
         return '%i hours %i minutes'%(t/60, t%60)
-
-
-def parze(age=0):
-    for i in actor.exposed_history(age):
-        yield i
 
 
 def groupeddisplay(log):
@@ -90,7 +81,7 @@ def longsummery(days, workingdays, aim):
     keys = {}
     for day in range(days):
         flag = 0
-        for ta, tm in groupeddisplay(parze(day)):
+        for ta, tm in groupeddisplay(actor.exposed_history(day)):
             flag = 1
             k = keys.setdefault(clean(ta), ta)
             actions[k] = actions.get(k, 0) + tm 
@@ -115,12 +106,12 @@ if __name__ == '__main__':
     import sys
     settings = actor.exposed_settings
     if len(sys.argv) < 2:
-        log = [(t, m) for t, m in parze()]
+        log = [(t, m) for t, m in actor.exposed_history()]
         for line in basicdisplay(log, settings['hours_per_day']):
             print line
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
-            log = [(t, m) for t, m in parze()]
+            log = [(t, m) for t, m in actor.exposed_history()]
             for line in daysummery(log, settings['hours_per_day']):
                 print line
         if sys.argv[1] == '-w':
@@ -130,4 +121,4 @@ if __name__ == '__main__':
             for line in longsummery(7*4, settings['days_per_week']*4, settings['hours_per_day']):
                 print line
     else:
-        logmessage(" ".join(sys.argv[1:]))
+        actor.exposed_log(" ".join(sys.argv[1:]))
