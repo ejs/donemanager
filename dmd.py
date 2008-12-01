@@ -86,10 +86,13 @@ class ListenerService(rpyc.Service):
         fn = self._get_file(age)
         if os.path.exists(fn):
             with open(fn) as source:
+                last = 0
                 for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
-                    l = list(g)[-1]
-                    when, message = l[:24].strip(), l[24:].strip()
-                    yield time.mktime(time.strptime(when)), message
+                    if flag:
+                        l = list(g)[-1]
+                        when, message = l[:24].strip(), l[24:].strip()
+                        yield time.mktime(time.strptime(when)), message
+                    flag = time.mktime(time.strptime(when))
 
     def _get_file(self, age=0):
         date = datetime.datetime.now() - datetime.timedelta(days=age, hours=6)

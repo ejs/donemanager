@@ -43,7 +43,7 @@ def daysummery(log, aim):
         print "Only %s to go today"%long_time(togo)
     else:
         print "Congratulations. have a rest."
-    print ''
+    print ""
     print "Time since last action %s ago"%long_time(age)
 
 
