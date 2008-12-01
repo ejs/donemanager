@@ -86,7 +86,7 @@ class ListenerService(rpyc.Service):
         fn = self._get_file(age)
         if os.path.exists(fn):
             with open(fn) as source:
-                last = 0
+                flag = 0
                 for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
                     if flag:
                         l = list(g)[-1]
