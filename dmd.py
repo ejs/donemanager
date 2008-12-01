@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import with_statement
+import itertools
 import rpyc
 import time
 import os, os.path
@@ -85,14 +86,10 @@ class ListenerService(rpyc.Service):
         fn = self._get_file(age)
         if os.path.exists(fn):
             with open(fn) as source:
-                lt, lm = None, None
-                for l in source:
-                    t, m = l[:24].strip(), l[24:].strip()
-                    if lm and clean(m) != clean(lm):
-                        yield time.mktime(time.strptime(lt)), lm
-                    lm, lt = m, t
-                if lm and lt:
-                    yield time.mktime(time.strptime(lt)), lm
+                for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
+                    l = list(g)[-1]
+                    when, message = l[:24].strip(), l[24:].strip()
+                    yield time.mktime(time.strptime(when)), message
 
     def _get_file(self, age=0):
         date = datetime.datetime.now() - datetime.timedelta(days=age, hours=6)
