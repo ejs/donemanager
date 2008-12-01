@@ -88,9 +88,9 @@ class ListenerService(rpyc.Service):
             with open(fn) as source:
                 flag = 0
                 for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
+                    l = list(g)[-1]
+                    when, message = l[:24].strip(), l[24:].strip()
                     if flag:
-                        l = list(g)[-1]
-                        when, message = l[:24].strip(), l[24:].strip()
                         yield time.mktime(time.strptime(when)), message
                     flag = time.mktime(time.strptime(when))
 
