@@ -2,7 +2,6 @@
 from __future__ import with_statement
 import rpyc
 import time
-import sys
 import os, os.path
 import datetime
 import yaml
@@ -10,6 +9,29 @@ import yaml
 
 def clean(s):
     return ''.join(c for c in s.lower() if c.isalnum())
+
+
+def long_time(t):
+    if t < 60:
+        return '%i minutes'%t
+    elif not t%60:
+        return '%i hours'%(t/60)
+    else:
+        return '%i hours %i minutes'%(t/60, t%60)
+
+
+def groupeddisplay(log):
+    totals = {}
+    keys = {}
+    last = None
+    for t, m in log:
+        if last:
+            k = keys.setdefault(clean(m), m)
+            totals[k] = totals.get(k, 0) + t - last
+        last = t
+    for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
+        tt = int(totals[task]/60)
+        yield task, tt
 
 
 class Settings(object):
@@ -44,8 +66,11 @@ class Settings(object):
 
 
 class ListenerService(rpyc.Service):
-    def on_connect(self):
+    def __init__(self, con):
+        rpyc.Service.__init__(self, con)
         self.exposed_basedir = os.path.expanduser('~/.donemanager')
+        if not os.path.exists(self.exposed_basedir):
+           os.mkdir(self.exposed_basedir)
         self.exposed_settings = Settings(self.exposed_basedir+'/config.yaml')
         if not self.exposed_settings:
             self.exposed_settings['days_per_week'] = 5
@@ -65,16 +90,20 @@ class ListenerService(rpyc.Service):
                     t, m = l[:24].strip(), l[24:].strip()
                     if lm and clean(m) != clean(lm):
                         yield time.mktime(time.strptime(lt)), lm
-                    lm = m
-                    lt = t
+                    lm, lt = m, t
                 if lm and lt:
                     yield time.mktime(time.strptime(lt)), lm
 
     def _get_file(self, age=0):
-        if not os.path.exists(self.exposed_basedir):
-           os.mkdir(self.exposed_basedir)
-        date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
+        date = datetime.datetime.now() - datetime.timedelta(days=age, hours=6)
         return date.strftime(self.exposed_basedir+'/%Y%m%d.txt')
+
+    def exposed_log_exists(self, age):
+        date = datetime.datetime.now()-datetime.timedelta(days=age, hours=6)
+        return os.path.exists(date.strftime(self.exposed_basedir+'/%Y%m%d.txt'))
+
+    def exposed_file(self, name, mode):
+        return open(self.exposed_basedir+name, mode)
 
     def exposed_now(self):
         return time.time()

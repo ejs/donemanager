@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import time
 import dmd
+import time
 
 
 try:
@@ -12,27 +12,8 @@ except:
     actor.on_connect()
 
 
-def long_time(t):
-    if t < 60:
-        return '%i minutes'%t
-    elif not t%60:
-        return '%i hours'%(t/60)
-    else:
-        return '%i hours %i minutes'%(t/60, t%60)
-
-
-def groupeddisplay(log):
-    totals = {}
-    keys = {}
-    last = None
-    for t, m in log:
-        if last:
-            k = keys.setdefault(dmd.clean(m), m)
-            totals[k] = totals.get(k, 0) + t - last
-        last = t
-    for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
-        tt = int(totals[task]/60)
-        yield task, tt
+long_time = dmd.long_time
+groupeddisplay = dmd.groupeddisplay
 
 
 def basicdisplay(log, aim):
