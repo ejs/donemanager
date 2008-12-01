@@ -19,13 +19,12 @@ groupeddisplay = dmd.groupeddisplay
 def basicdisplay(log, aim):
     """aim is the number of hours that should be worked over this time period."""
     for t, m in log:
-        yield "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
-    yield ''
+        print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
+    print ''
     for task, tm in groupeddisplay(log):
-        yield "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
-    yield ''
-    for line in daysummery(log, aim):
-        yield line
+        print "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
+    print ''
+    daysummery(log, aim)
 
 
 def daysummery(log, aim):
@@ -38,14 +37,14 @@ def daysummery(log, aim):
     mostrecent = max(i[0] for i in log)
     age = int(actor.exposed_now() - mostrecent)/60
     togo = aim*60 - validtime
-    yield "Usefull time today     %s"%long_time(validtime)
-    yield "Wasted time            %s"%long_time(wasted)
+    print "Usefull time today     %s"%long_time(validtime)
+    print "Wasted time            %s"%long_time(wasted)
     if togo > 0:
-        yield "Only %s to go today"%long_time(togo)
+        print "Only %s to go today"%long_time(togo)
     else:
-        yield "Congratulations. have a rest."
-    yield ''
-    yield "Time since last action %s ago"%long_time(age)
+        print "Congratulations. have a rest."
+    print ''
+    print "Time since last action %s ago"%long_time(age)
 
 
 def longsummery(days, workingdays, aim):
@@ -67,35 +66,33 @@ def longsummery(days, workingdays, aim):
     wasted  = sum(actions[task] for task in actions if task.endswith('**'))
     togo = min(workingdays, valid)*aim*60 - validtime
     for task in sorted(actions, key=lambda t:actions[t], reverse=True):
-        yield "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', actions[task]/60, actions[task]%60)
-    yield "Over the last %i days you worked %i.You are aiming for %i."%(days, valid, workingdays)
-    yield "Welldone" if valid >= days else "Only %i short"%(workingdays-valid)
-    yield "Used   time     %s"%long_time(validtime)
-    yield "Wasted time     %s"%long_time(wasted)
-    yield "You should have worked %i hours."%(aim*valid, )
+        print "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', actions[task]/60, actions[task]%60)
+    print "Over the last %i days you worked %i.You are aiming for %i."%(days, valid, workingdays)
+    print "Welldone" if valid >= days else "Only %i short"%(workingdays-valid)
+    print "Used   time     %s"%long_time(validtime)
+    print "Wasted time     %s"%long_time(wasted)
+    print "You should have worked %i hours."%(aim*valid, )
     if togo > 0:
-        yield "Only %s to go (today)."%long_time(togo)
+        print "Only %s to go (today)."%long_time(togo)
     else:
-        yield "Congratulations. have a rest."
+        print "Congratulations. have a rest."
 
 
 if __name__ == '__main__':
     import sys
     settings = actor.exposed_settings
+    days_per_week = settings['days_per_week']
+    hours_per_day = settings['hours_per_day']
     if len(sys.argv) < 2:
         log = [(t, m) for t, m in actor.exposed_history()]
-        for line in basicdisplay(log, settings['hours_per_day']):
-            print line
+        basicdisplay(log, hours_per_day)
     elif sys.argv[1].startswith('-'):
         if sys.argv[1] == '-s':
             log = [(t, m) for t, m in actor.exposed_history()]
-            for line in daysummery(log, settings['hours_per_day']):
-                print line
+            daysummery(log, hours_per_day)
         if sys.argv[1] == '-w':
-            for line in longsummery(7, settings['days_per_week'], settings['hours_per_day']):
-                print line
+            longsummery(7, days_per_week, hours_per_day)
         if sys.argv[1] == '-m':
-            for line in longsummery(7*4, settings['days_per_week']*4, settings['hours_per_day']):
-                print line
+            longsummery(7*4, days_per_week*4, hours_per_day)
     else:
         actor.exposed_log(" ".join(sys.argv[1:]))
