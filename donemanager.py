@@ -93,6 +93,5 @@ if __name__ == '__main__':
         print
     if options.summary:
         summary_display(options.timeframe[0], options.timeframe[1], options.timeframe[1]*hours_per_day, actor)
-        print 'summary'
     if args:
         actor.exposed_log(" ".join(args))
