@@ -107,6 +107,21 @@ class ListenerService(rpyc.Service):
     def exposed_now(self):
         return time.time()
 
+    def exposed_aim(self, period, high):
+        def convert(s):
+            if s == '-':
+                return 0
+            else:
+                a, b = s.split(':')
+                return int(a)*60+int(b)
+
+        active = sum(1 for i in range(period) if self.exposed_log_exists(i))
+        active = min(active, high)
+        source = actor.exposed_file('/caps.txt', 'r')
+        caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
+        caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
+        return caps
+
 
 if __name__ == '__main__':
     from rpyc.utils.server import ThreadedServer

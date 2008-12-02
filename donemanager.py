@@ -70,6 +70,7 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
     print
     print "Time since last action %s ago"%long_time(age)
 
+
 def summery(period):
     actions = {}
     keys = {}
@@ -83,25 +84,9 @@ def summery(period):
     validtime = sum(actions[task] for task in actions if not task.endswith('**'))
 
 
-def aim(period, high):
-    def convert(s):
-        if s == '-':
-            return 0
-        else:
-            a, b = s.split(':')
-            return int(a)*60+int(b)
-
-    active = sum(1 for i in range(period) if actor.exposed_log_exists(i))
-    active = min(active, high)
-    source = actor.exposed_file('/caps.txt', 'r')
-    caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
-    caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
-    return caps
-
-
 def task_display(timeperiod, high, source):
     log = summery(timeperiod)
-    target = aim(timeperiod, high)
+    target = source.exposed_aim(timeperiod, high)
     log = dict((dmd.clean(n), log[n]) for n in log)
     for l in target:
         cl = dmd.clean(l)
