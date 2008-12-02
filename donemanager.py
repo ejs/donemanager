@@ -14,7 +14,6 @@ except:
 
 long_time = dmd.long_time
 groupeddisplay = dmd.groupeddisplay
-summery = dmd.summery
 clean = dmd.clean
 
 
@@ -74,7 +73,7 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
 
 
 def task_display(timeperiod, high, source):
-    log = summery(timeperiod)
+    log = source.exposed_summery(timeperiod)
     target = source.exposed_aim(timeperiod, high)
     log = dict((clean(n), log[n]) for n in log)
     for l in target:

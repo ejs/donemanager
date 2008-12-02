@@ -35,17 +35,6 @@ def groupeddisplay(log):
         yield task, tt
 
 
-def summery(period):
-    actions = {}
-    keys = {}
-    for day in range(period):
-        flag = 0
-        for ta, tm in groupeddisplay(actor.exposed_history(day)):
-            flag = 1
-            k = keys.setdefault(clean(ta), ta)
-            actions[k] = actions.get(k, 0) + tm
-    return actions
-    validtime = sum(actions[task] for task in actions if not task.endswith('**'))
 
 
 class Settings(object):
@@ -134,6 +123,17 @@ class ListenerService(rpyc.Service):
         caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
         caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
         return caps
+
+    def exposed_summery(self, period):
+        actions = {}
+        keys = {}
+        for day in range(period):
+            flag = 0
+            for ta, tm in groupeddisplay(self.exposed_history(day)):
+                flag = 1
+                k = keys.setdefault(clean(ta), ta)
+                actions[k] = actions.get(k, 0) + tm
+        return actions
 
 
 if __name__ == '__main__':
