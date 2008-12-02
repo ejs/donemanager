@@ -90,8 +90,7 @@ class ListenerService(rpyc.Service):
                 for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
                     l = list(g)[-1]
                     when, message = l[:24].strip(), l[24:].strip()
-                    if flag:
-                        yield time.mktime(time.strptime(when)), message
+                    yield time.mktime(time.strptime(when)), message
                     flag = time.mktime(time.strptime(when))
 
     def _get_file(self, age=0):

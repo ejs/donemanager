@@ -16,83 +16,83 @@ long_time = dmd.long_time
 groupeddisplay = dmd.groupeddisplay
 
 
-def basicdisplay(log, aim):
-    """aim is the number of hours that should be worked over this time period."""
-    for t, m in log:
-        print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
-    print ''
-    for task, tm in groupeddisplay(log):
+def chrono_display(timeperiod, actor):
+    for day in range(timeperiod-1, -1, -1):
+        for t, m in actor.exposed_history(day):
+            print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
+
+
+def grouped_display(timeperiod, source):
+    tmp = {}
+    key = {}
+    for day in range(timeperiod-1, -1, -1):
+        for task, tm in groupeddisplay(source.exposed_history(day)):
+            k = dmd.clean(task)
+            if k not in key:
+                key[k] = task
+            tmp[k] = tm + tmp.get(k, 0)
+    for t in sorted(tmp, key=lambda t:tmp[t], reverse=True):
+        task = key[t]
+        tm = tmp[t]
         print "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
-    print ''
-    daysummery(log, aim)
 
 
-def daysummery(log, aim):
-    """aim is the number of hours that should be worked over this time period."""
-    actions = {}
-    for ta, tm in groupeddisplay(log):
-       actions[ta] = actions.get(ta, 0) + tm
-    validtime = sum(actions[task] for task in actions if not task.endswith('**'))
-    wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-    mostrecent = max(i[0] for i in log)
-    age = int(actor.exposed_now() - mostrecent)/60
-    togo = aim*60 - validtime
-    print "Usefull time today     %s"%long_time(validtime)
-    print "Wasted time            %s"%long_time(wasted)
+def summary_display(timeperiod, days_aimed, hours_aimed, source):
+    tmp = {}
+    valid = 0
+    for day in range(timeperiod-1, -1, -1):
+        flag = 0
+        for task, tm in groupeddisplay(source.exposed_history(day)):
+            flag = 1
+            key = dmd.clean(task)
+            tmp[key] = tm + tmp.get(key, 0)
+        valid += flag
+
+    print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, days_aimed, valid)
+    if days_aimed <= valid:
+        print "Well done."
+    else:
+        print "Leaving you %i days short."%(days_aimed-valid)
+    print
+
+    validtime = sum(tmp[task] for task in tmp if not task.endswith('**'))
+    wasted  = sum(tmp[task] for task in tmp if task.endswith('**'))
+    togo = hours_aimed*60 - validtime
+    print "Aimed time   %s"%long_time(hours_aimed*60)
+    print "Usefull time %s"%long_time(validtime)
+    print "Wasted time  %s"%long_time(wasted)
     if togo > 0:
-        print "Only %s to go today"%long_time(togo)
+        print "Only %s to go"%long_time(togo)
     else:
         print "Congratulations. have a rest."
-    print ""
+
+    mostrecent = max(i[0] for day in range(0, timeperiod) for i in source.exposed_history(day))
+    age = int(actor.exposed_now() - mostrecent)/60
     print "Time since last action %s ago"%long_time(age)
 
-
-def longsummery(days, workingdays, aim):
-    """
-        days : the number of days to search back for existing files.
-        workingdays : the aimed numner of days to work in this time.
-    """
-    valid = 0
-    actions = {}
-    keys = {}
-    for day in range(days):
-        flag = 0
-        for ta, tm in groupeddisplay(actor.exposed_history(day)):
-            flag = 1
-            k = keys.setdefault(dmd.clean(ta), ta)
-            actions[k] = actions.get(k, 0) + tm 
-        valid += flag
-    validtime = sum(actions[task] for task in actions if not task.endswith('**'))
-    wasted  = sum(actions[task] for task in actions if task.endswith('**'))
-    togo = min(workingdays, valid)*aim*60 - validtime
-    for task in sorted(actions, key=lambda t:actions[t], reverse=True):
-        print "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', actions[task]/60, actions[task]%60)
-    print "Over the last %i days you worked %i.You are aiming for %i."%(days, valid, workingdays)
-    print "Welldone" if valid >= days else "Only %i short"%(workingdays-valid)
-    print "Used   time     %s"%long_time(validtime)
-    print "Wasted time     %s"%long_time(wasted)
-    print "You should have worked %i hours."%(aim*valid, )
-    if togo > 0:
-        print "Only %s to go (today)."%long_time(togo)
-    else:
-        print "Congratulations. have a rest."
-
-
 if __name__ == '__main__':
-    import sys
+    from optparse import OptionParser
     settings = actor.exposed_settings
     days_per_week = settings['days_per_week']
     hours_per_day = settings['hours_per_day']
-    if len(sys.argv) < 2:
-        log = [(t, m) for t, m in actor.exposed_history()]
-        basicdisplay(log, hours_per_day)
-    elif sys.argv[1].startswith('-'):
-        if sys.argv[1] == '-s':
-            log = [(t, m) for t, m in actor.exposed_history()]
-            daysummery(log, hours_per_day)
-        if sys.argv[1] == '-w':
-            longsummery(7, days_per_week, hours_per_day)
-        if sys.argv[1] == '-m':
-            longsummery(7*4, days_per_week*4, hours_per_day)
-    else:
-        actor.exposed_log(" ".join(sys.argv[1:]))
+    parser = OptionParser()
+    parser.add_option("-d", dest="timeframe", action="store_const", const=(1, 1), default=(1, 1))
+    parser.add_option("-w", dest="timeframe", action="store_const", const=(7, days_per_week))
+    parser.add_option("-m", dest="timeframe", action="store_const", const=(28, days_per_week*4))
+    parser.add_option("-c", action="store_true", dest="chrono", default=False)
+    parser.add_option("-g", action="store_true", dest="grouped", default=False)
+    parser.add_option("-s", action="store_false", dest="summary", default=True)
+    options, args = parser.parse_args()
+    if args:
+        actor.exposed_log(" ".join(args))
+    if options.chrono:
+        chrono_display(options.timeframe[0], actor)
+        print
+    if options.grouped:
+        grouped_display(options.timeframe[0], actor)
+        print
+    if options.summary:
+        summary_display(options.timeframe[0], options.timeframe[1], options.timeframe[1]*hours_per_day, actor)
+        print 'summary'
+    if args:
+        actor.exposed_log(" ".join(args))
