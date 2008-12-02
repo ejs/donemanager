@@ -44,8 +44,7 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
         flag = 0
         for task, tm in groupeddisplay(source.exposed_history(day)):
             flag = 1
-            key = dmd.clean(task)
-            tmp[key] = tm + tmp.get(key, 0)
+            tmp[task] = tm + tmp.get(task, 0)
         valid += flag
 
     print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, days_aimed, valid)
