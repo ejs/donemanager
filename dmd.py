@@ -117,7 +117,7 @@ class ListenerService(rpyc.Service):
 
         active = sum(1 for i in range(period) if self.exposed_log_exists(i))
         active = min(active, high)
-        source = actor.exposed_file('/caps.txt', 'r')
+        source = self.exposed_file('/caps.txt', 'r')
         caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
         caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
         return caps
