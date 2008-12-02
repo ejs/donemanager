@@ -14,6 +14,8 @@ except:
 
 long_time = dmd.long_time
 groupeddisplay = dmd.groupeddisplay
+summery = dmd.summery
+clean = dmd.clean
 
 
 def chrono_display(timeperiod, actor):
@@ -27,7 +29,7 @@ def grouped_display(timeperiod, source):
     key = {}
     for day in range(timeperiod-1, -1, -1):
         for task, tm in groupeddisplay(source.exposed_history(day)):
-            k = dmd.clean(task)
+            k = clean(task)
             if k not in key:
                 key[k] = task
             tmp[k] = tm + tmp.get(k, 0)
@@ -71,32 +73,19 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
     print "Time since last action %s ago"%long_time(age)
 
 
-def summery(period):
-    actions = {}
-    keys = {}
-    for day in range(period):
-        flag = 0
-        for ta, tm in dmd.groupeddisplay(actor.exposed_history(day)):
-            flag = 1
-            k = keys.setdefault(dmd.clean(ta), ta)
-            actions[k] = actions.get(k, 0) + tm
-    return actions
-    validtime = sum(actions[task] for task in actions if not task.endswith('**'))
-
-
 def task_display(timeperiod, high, source):
     log = summery(timeperiod)
     target = source.exposed_aim(timeperiod, high)
-    log = dict((dmd.clean(n), log[n]) for n in log)
+    log = dict((clean(n), log[n]) for n in log)
     for l in target:
-        cl = dmd.clean(l)
+        cl = clean(l)
         if cl in log:
             if target[l][0] and log[cl] < target[l][0]:
-                print "To little time spent on %s (%s should be at least %s)"%(l, dmd.long_time(log[cl]), dmd.long_time(target[l][0]))
+                print "To little time spent on %s (%s should be at least %s)"%(l, long_time(log[cl]), long_time(target[l][0]))
             elif target[l][1] and log[cl] > target[l][1]:
-                print "To  much  time spent on %s (%s should be at most %s)"%(l, dmd.long_time(log[cl]), dmd.long_time(target[l][1]))
+                print "To  much  time spent on %s (%s should be at most %s)"%(l, long_time(log[cl]), long_time(target[l][1]))
         elif target[l][0]:
-            print "You should spend some time on %s (aiming for at least %s)"%(l, dmd.long_time(target[l][0]))
+            print "You should spend some time on %s (aiming for at least %s)"%(l, long_time(target[l][0]))
 
 
 if __name__ == '__main__':
