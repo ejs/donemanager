@@ -22,32 +22,20 @@ def long_time(t):
 
 
 def chrono_display(timeperiod, actor):
-    for day in range(timeperiod-1, -1, -1):
-        for t, m in actor.exposed_history(day):
-            print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
+    for t, m in actor.exposed_history(range(timeperiod-1, -1, -1)):
+        print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
 
 
 def grouped_display(timeperiod, source):
-    tmp = {}
-    key = {}
-    for day in range(timeperiod):
-        for task, tm in source.exposed_grouped(day):
-            k = dmd.clean(task)
-            key[k] = key.get(k, task)
-            tmp[k] = tm + tmp.get(k, 0)
-    for t in sorted(tmp, key=lambda t:tmp[t], reverse=True):
-        task = key[t]
-        tm = tmp[t]
+    tmp = dict(source.exposed_grouped(range(timeperiod)))
+    for task in sorted(tmp, key=lambda t:tmp[t], reverse=True):
+        tm = tmp[task]
         print "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
 
 
 def summary_display(timeperiod, days_aimed, hours_aimed, source):
-    tmp = {}
-    valid = [i for i in range(timeperiod) if source.exposed_log_exists]
-    for day in valid:
-        for task, tm in source.exposed_grouped(day):
-            tmp[task] = tm + tmp.get(task, 0)
-    valid = len(valid)
+    tmp = dict(source.exposed_grouped(range(timeperiod)))
+    valid = len([i for i in range(timeperiod) if source.exposed_log_exists(i)])
 
     print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, days_aimed, valid)
     if days_aimed <= valid:
@@ -67,18 +55,14 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
     else:
         print "Congratulations. have a rest."
 
-    mostrecent = max(i[0] for day in range(0, timeperiod) for i in source.exposed_history(day))
+    mostrecent = max(tm for tm, _ in source.exposed_history(range(timeperiod)))
     age = int(actor.exposed_now() - mostrecent)/60
     print
     print "Time since last action %s ago"%long_time(age)
 
 
 def task_display(timeperiod, high, source):
-    log = {}
-    for day in range(timeperiod):
-        for ta, tm in source.exposed_grouped(day):
-            k = dmd.clean(ta)
-            log[k] = log.get(k, 0) + tm
+    log = dict(source.exposed_grouped(range(timeperiod)))
     target = source.exposed_aim(timeperiod, high)
     for l in target:
         cl = dmd.clean(l)

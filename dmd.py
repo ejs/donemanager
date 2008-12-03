@@ -59,16 +59,15 @@ class ListenerService(rpyc.Service):
         with open(self._get_file(), 'a') as sink:
             sink.write('%s %s\n'%(time.ctime(), message))
 
-    def exposed_history(self, age=0):
-        fn = self._get_file(age)
-        if os.path.exists(fn):
-            with open(fn) as source:
-                flag = 0
-                for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
-                    l = list(g)[-1]
-                    when, message = l[:24].strip(), l[24:].strip()
-                    yield time.mktime(time.strptime(when)), message
-                    flag = time.mktime(time.strptime(when))
+    def exposed_history(self, period):
+        for age in period:
+            fn = self._get_file(age)
+            if os.path.exists(fn):
+                with open(fn) as source:
+                    for k, g in itertools.groupby(source, key=lambda l: clean(l[24:])):
+                        l = list(g)[-1]
+                        when, message = l[:24].strip(), l[24:].strip()
+                        yield time.mktime(time.strptime(when)), message
 
     def _get_file(self, age=0):
         date = datetime.datetime.now() - datetime.timedelta(days=age, hours=6)
@@ -99,15 +98,16 @@ class ListenerService(rpyc.Service):
         caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
         return caps
 
-    def exposed_grouped(self, age):
+    def exposed_grouped(self, period):
         totals = {}
         keys = {}
-        last = None
-        for t, m in self.exposed_history(age):
-            if last:
-                k = keys.setdefault(clean(m), m)
-                totals[k] = totals.get(k, 0) + t - last
-            last = t
+        for age in period:
+            last = None
+            for t, m in self.exposed_history([age]):
+                if last:
+                    k = keys.setdefault(clean(m), m)
+                    totals[k] = totals.get(k, 0) + t - last
+                last = t
         for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
             tt = int(totals[task]/60)
             yield task, tt
