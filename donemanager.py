@@ -12,9 +12,13 @@ except:
     actor.on_connect()
 
 
-long_time = dmd.long_time
-groupeddisplay = dmd.groupeddisplay
-clean = dmd.clean
+def long_time(t):
+    if t < 60:
+        return '%i minutes'%t
+    elif not t%60:
+        return '%i hours'%(t/60)
+    else:
+        return '%i hours %i minutes'%(t/60, t%60)
 
 
 def chrono_display(timeperiod, actor):
@@ -26,11 +30,10 @@ def chrono_display(timeperiod, actor):
 def grouped_display(timeperiod, source):
     tmp = {}
     key = {}
-    for day in range(timeperiod-1, -1, -1):
-        for task, tm in groupeddisplay(source.exposed_history(day)):
-            k = clean(task)
-            if k not in key:
-                key[k] = task
+    for day in range(timeperiod):
+        for task, tm in source.exposed_grouped(day):
+            k = dmd.clean(task)
+            key[k] = key.get(k, task)
             tmp[k] = tm + tmp.get(k, 0)
     for t in sorted(tmp, key=lambda t:tmp[t], reverse=True):
         task = key[t]
@@ -40,13 +43,11 @@ def grouped_display(timeperiod, source):
 
 def summary_display(timeperiod, days_aimed, hours_aimed, source):
     tmp = {}
-    valid = 0
-    for day in range(timeperiod-1, -1, -1):
-        flag = 0
-        for task, tm in groupeddisplay(source.exposed_history(day)):
-            flag = 1
+    valid = [i for i in range(timeperiod) if source.exposed_log_exists]
+    for day in valid:
+        for task, tm in source.exposed_grouped(day):
             tmp[task] = tm + tmp.get(task, 0)
-        valid += flag
+    valid = len(valid)
 
     print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, days_aimed, valid)
     if days_aimed <= valid:
@@ -73,11 +74,14 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
 
 
 def task_display(timeperiod, high, source):
-    log = source.exposed_summery(timeperiod)
+    log = {}
+    for day in range(timeperiod):
+        for ta, tm in source.exposed_grouped(day):
+            k = dmd.clean(ta)
+            log[k] = log.get(k, 0) + tm
     target = source.exposed_aim(timeperiod, high)
-    log = dict((clean(n), log[n]) for n in log)
     for l in target:
-        cl = clean(l)
+        cl = dmd.clean(l)
         if cl in log:
             if target[l][0] and log[cl] < target[l][0]:
                 print "To little time spent on %s (%s should be at least %s)"%(l, long_time(log[cl]), long_time(target[l][0]))
@@ -90,16 +94,17 @@ def task_display(timeperiod, high, source):
 if __name__ == '__main__':
     from optparse import OptionParser
     settings = actor.exposed_settings
-    days_per_week = settings['days_per_week']
-    hours_per_day = settings['hours_per_day']
+    days = settings['days_per_week']
+
     parser = OptionParser()
     parser.add_option("-d", dest="timeframe", action="store_const", const=(1, 1), default=(1, 1))
-    parser.add_option("-w", dest="timeframe", action="store_const", const=(7, days_per_week))
-    parser.add_option("-m", dest="timeframe", action="store_const", const=(28, days_per_week*4))
+    parser.add_option("-w", dest="timeframe", action="store_const", const=(7, days))
+    parser.add_option("-m", dest="timeframe", action="store_const", const=(28, days*4))
     parser.add_option("-c", action="store_true", dest="chrono", default=False)
     parser.add_option("-g", action="store_true", dest="grouped", default=False)
     parser.add_option("-s", action="store_false", dest="summary", default=True)
     parser.add_option("-t", action="store_true", dest="tasks", default=False)
+
     options, args = parser.parse_args()
     if args:
         actor.exposed_log(" ".join(args))
@@ -110,7 +115,7 @@ if __name__ == '__main__':
         grouped_display(options.timeframe[0], actor)
         print
     if options.summary:
-        summary_display(options.timeframe[0], options.timeframe[1], options.timeframe[1]*hours_per_day, actor)
+        summary_display(options.timeframe[0], options.timeframe[1], options.timeframe[1]*settings['hours_per_day'], actor)
         print
     if options.tasks:
         task_display(options.timeframe[0], options.timeframe[1], actor)

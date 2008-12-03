@@ -12,31 +12,6 @@ def clean(s):
     return ''.join(c for c in s.lower() if c.isalnum())
 
 
-def long_time(t):
-    if t < 60:
-        return '%i minutes'%t
-    elif not t%60:
-        return '%i hours'%(t/60)
-    else:
-        return '%i hours %i minutes'%(t/60, t%60)
-
-
-def groupeddisplay(log):
-    totals = {}
-    keys = {}
-    last = None
-    for t, m in log:
-        if last:
-            k = keys.setdefault(clean(m), m)
-            totals[k] = totals.get(k, 0) + t - last
-        last = t
-    for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
-        tt = int(totals[task]/60)
-        yield task, tt
-
-
-
-
 class Settings(object):
     def __init__(self, filename):
         self.filename = filename
@@ -124,16 +99,18 @@ class ListenerService(rpyc.Service):
         caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
         return caps
 
-    def exposed_summery(self, period):
-        actions = {}
+    def exposed_grouped(self, age):
+        totals = {}
         keys = {}
-        for day in range(period):
-            flag = 0
-            for ta, tm in groupeddisplay(self.exposed_history(day)):
-                flag = 1
-                k = keys.setdefault(clean(ta), ta)
-                actions[k] = actions.get(k, 0) + tm
-        return actions
+        last = None
+        for t, m in self.exposed_history(age):
+            if last:
+                k = keys.setdefault(clean(m), m)
+                totals[k] = totals.get(k, 0) + t - last
+            last = t
+        for task in sorted(totals, key=(lambda k:totals[k]), reverse=True):
+            tt = int(totals[task]/60)
+            yield task, tt
 
 
 if __name__ == '__main__':
