@@ -3,13 +3,22 @@ from __future__ import with_statement
 import itertools
 import rpyc
 import time
-import os, os.path
+import os
+import os.path
 import datetime
 import yaml
 
 
 def clean(s):
     return ''.join(c for c in s.lower() if c.isalnum())
+
+
+def str2time(s):
+    if s == '-':
+        return 0
+    else:
+        a, b = s.split(':')
+        return int(a)*60+int(b)
 
 
 class Settings(object):
@@ -45,7 +54,7 @@ class Settings(object):
 
 class ListenerService(rpyc.Service):
     def __init__(self, con):
-        rpyc.Service.__init__(self, con)
+        super(ListenerService, self).__init__(con)
         self.exposed_basedir = os.path.expanduser('~/.donemanager')
         if not os.path.exists(self.exposed_basedir):
            os.mkdir(self.exposed_basedir)
@@ -84,18 +93,11 @@ class ListenerService(rpyc.Service):
         return time.time()
 
     def exposed_aim(self, period, high):
-        def convert(s):
-            if s == '-':
-                return 0
-            else:
-                a, b = s.split(':')
-                return int(a)*60+int(b)
-
         active = sum(1 for i in range(period) if self.exposed_log_exists(i))
         active = min(active, high)
         source = self.exposed_file('/caps.txt', 'r')
         caps = ((s.strip() for s in l.split('\t')) for l in source if l[0] != '#')
-        caps = dict((a, [active*convert(b), active*convert(c)]) for a, b, c in caps)
+        caps = dict((a, [active*str2time(b), active*str2time(c)]) for a, b, c in caps)
         return caps
 
     def exposed_grouped(self, period):

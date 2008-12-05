@@ -5,11 +5,10 @@ import time
 
 try:
     import rpyc
-    server = rpyc.connect_by_service('LISTENER')
-    actor = server.root
+    actor = rpyc.connect_by_service('LISTENER').root
 except:
+    print "Using local service"
     actor = dmd.ListenerService(None)
-    actor.on_connect()
 
 
 def long_time(t):
