@@ -12,12 +12,12 @@ except:
 
 
 def long_time(t):
-    if t < 60:
-        return '%i minutes'%t
-    elif not t%60:
-        return '%i hours'%(t/60)
-    else:
-        return '%i hours %i minutes'%(t/60, t%60)
+    h, m = t//60, t%60
+    result = ''
+    for number, singular, plural in ((t//60, 'hour ', 'hours'), (t%60, 'minute ', 'minutes')):
+        if number:
+            result += "%2i %s "%(number, singular if number == 1 else plural)
+    return result or 'none'
 
 
 def chrono_display(timeperiod, actor):
@@ -57,7 +57,7 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
     mostrecent = max(tm for tm, _ in source.exposed_history(range(timeperiod)))
     age = int(actor.exposed_now() - mostrecent)/60
     print
-    print "Time since last action %s ago"%long_time(age)
+    print "Time since last action : %s"%long_time(age)
 
 
 def task_display(timeperiod, high, source):
