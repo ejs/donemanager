@@ -29,7 +29,7 @@ def grouped_display(timeperiod, source):
     tmp = dict(source.exposed_grouped(range(timeperiod)))
     for task in sorted(tmp, key=lambda t:tmp[t], reverse=True):
         tm = tmp[task]
-        print "% 40s %s %2i:%02i"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', tm/60, tm%60)
+        print "% 40s %s %s"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', long_time(tm))
 
 
 def summary_display(timeperiod, days_aimed, hours_aimed, source):
