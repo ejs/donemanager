@@ -1,3 +1,4 @@
 set efective midnight in config file.
 allow coments to be added to descriptions that don't affect grouping or group display
 move to one of datetime or time
+cli flags to swap between long formated (1 hour 5 minutes) and short formated (1:05)

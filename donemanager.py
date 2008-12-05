@@ -85,7 +85,7 @@ if __name__ == '__main__':
     parser.add_option("-m", dest="timeframe", action="store_const", const=(28, days*4))
     parser.add_option("-c", action="store_true", dest="chrono", default=False)
     parser.add_option("-g", action="store_true", dest="grouped", default=False)
-    parser.add_option("-s", action="store_false", dest="summary", default=True)
+    parser.add_option("-s", action="store_true", dest="summary", default=False)
     parser.add_option("-t", action="store_true", dest="tasks", default=False)
 
     options, args = parser.parse_args()
