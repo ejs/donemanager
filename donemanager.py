@@ -19,21 +19,18 @@ def long_time(t):
     return result or 'none'
 
 
-def chrono_display(timeinfo, actor):
-    timeperiod, _, _ = timeinfo
+def chrono_display((timeperiod, _, __), actor):
     for t, m in actor.exposed_history(range(timeperiod-1, -1, -1)):
         print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
 
 
-def grouped_display(timeinfo, source):
-    timeperiod, _, _ = timeinfo
+def grouped_display((timeperiod, _, __), source):
     data = list(source.exposed_grouped(range(timeperiod)))
     for task, tm in sorted(data, key=lambda t:t[1], reverse=True):
         print "% 40s %s %s"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', long_time(tm))
 
 
-def summary_display(timeinfo, source):
-    timeperiod, high, hours_aimed = timeinfo
+def summary_display((timeperiod, high, hours_aimed), source):
     valid = len([i for i in range(timeperiod) if source.exposed_log_exists(i)])
     print "In the last %i days you aimed to work %i days and managed %i days"%(timeperiod, high, valid)
     if high <= valid:
@@ -60,8 +57,7 @@ def summary_display(timeinfo, source):
     print "Time since last action : %s"%long_time(age)
 
 
-def task_display(timeinfo, source):
-    timeperiod, high, _ = timeinfo
+def task_display((timeperiod, high, _), source):
     log = dict((dmd.clean(n), t) for n, t in source.exposed_grouped(range(timeperiod)))
     target = source.exposed_aim(timeperiod, high)
     for l in target:
@@ -70,7 +66,7 @@ def task_display(timeinfo, source):
             if target[l][0] and log[cl] < target[l][0]:
                 print "To little time spent on %s (%s should be at least %s)"%(l, long_time(log[cl]), long_time(target[l][0]))
             elif target[l][1] and log[cl] > target[l][1]:
-                print "To  much  time spent on %s (%s should be at most %s)"%(l, long_time(log[cl]), long_time(target[l][1]))
+                print "To  much  time spent on %s (%s should be at most  %s)"%(l, long_time(log[cl]), long_time(target[l][1]))
         elif target[l][0]:
             print "You should spend some time on %s (aiming for at least %s)"%(l, long_time(target[l][0]))
 
