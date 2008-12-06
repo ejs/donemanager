@@ -12,7 +12,6 @@ except:
 
 
 def long_time(t):
-    h, m = t//60, t%60
     result = ''
     for number, singular, plural in ((t//60, 'hour ', 'hours'), (t%60, 'minute ', 'minutes')):
         if number:
@@ -58,7 +57,7 @@ def summary_display(timeinfo, source):
         print "Congratulations. have a rest."
 
     mostrecent = max(tm for tm, _ in source.exposed_history(range(timeperiod)))
-    age = int(actor.exposed_now() - mostrecent)/60
+    age = (actor.exposed_now() - mostrecent)//60
     print
     print "Time since last action : %s"%long_time(age)
 
@@ -88,7 +87,7 @@ if __name__ == '__main__':
     parser.add_option("-d", action="store_const", dest="timeframe", const=(1, 1, hours), default=(1, 1, hours))
     parser.add_option("-w", action="store_const", dest="timeframe", const=(7, days, hours*days))
     parser.add_option("-m", action="store_const", dest="timeframe", const=(28, days*4, hours*days*4))
-    parser.add_option("-c", action="append_const", dest="actions", const=chrono_display)
+    parser.add_option("-c", action="append_const", dest="actions", const=chrono_display, default=[])
     parser.add_option("-g", action="append_const", dest="actions", const=grouped_display)
     parser.add_option("-s", action="append_const", dest="actions", const=summary_display)
     parser.add_option("-t", action="append_const", dest="actions", const=task_display)
