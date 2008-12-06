@@ -27,26 +27,24 @@ def chrono_display(timeinfo, actor):
 
 def grouped_display(timeinfo, source):
     timeperiod, _, _ = timeinfo
-    tmp = dict(source.exposed_grouped(range(timeperiod)))
-    for task in sorted(tmp, key=lambda t:tmp[t], reverse=True):
-        tm = tmp[task]
+    data = list(source.exposed_grouped(range(timeperiod)))
+    for task, tm in sorted(data, key=lambda t:t[1], reverse=True):
         print "% 40s %s %s"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', long_time(tm))
 
 
 def summary_display(timeinfo, source):
     timeperiod, high, hours_aimed = timeinfo
-    tmp = dict(source.exposed_grouped(range(timeperiod)))
     valid = len([i for i in range(timeperiod) if source.exposed_log_exists(i)])
-
-    print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, high, valid)
+    print "In the last %i days you aimed to work %i days and managed %i days"%(timeperiod, high, valid)
     if high <= valid:
         print "Well done."
     else:
         print "Leaving you %i days short."%(high-valid)
     print
 
-    validtime = sum(tmp[task] for task in tmp if not task.endswith('**'))
-    wasted  = sum(tmp[task] for task in tmp if task.endswith('**'))
+    tmp = list(source.exposed_grouped(range(timeperiod)))
+    validtime = sum(tm for task, tm in tmp if not task.endswith('**'))
+    wasted  = sum(tm for task, tm in tmp if task.endswith('**'))
     togo = hours_aimed*60 - validtime
     print "Aimed time   %s"%long_time(hours_aimed*60)
     print "Usefull time %s"%long_time(validtime)
