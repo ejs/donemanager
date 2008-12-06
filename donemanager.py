@@ -20,27 +20,30 @@ def long_time(t):
     return result or 'none'
 
 
-def chrono_display(timeperiod, actor):
+def chrono_display(timeinfo, actor):
+    timeperiod, _, _ = timeinfo
     for t, m in actor.exposed_history(range(timeperiod-1, -1, -1)):
         print "%40s %s %s"%(time.ctime(t), '*' if m.endswith('**') else ' ', m.rstrip('* '))
 
 
-def grouped_display(timeperiod, source):
+def grouped_display(timeinfo, source):
+    timeperiod, _, _ = timeinfo
     tmp = dict(source.exposed_grouped(range(timeperiod)))
     for task in sorted(tmp, key=lambda t:tmp[t], reverse=True):
         tm = tmp[task]
         print "% 40s %s %s"%(task.rstrip('* '), '*' if task.endswith('**') else ' ', long_time(tm))
 
 
-def summary_display(timeperiod, days_aimed, hours_aimed, source):
+def summary_display(timeinfo, source):
+    timeperiod, high, hours_aimed = timeinfo
     tmp = dict(source.exposed_grouped(range(timeperiod)))
     valid = len([i for i in range(timeperiod) if source.exposed_log_exists(i)])
 
-    print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, days_aimed, valid)
-    if days_aimed <= valid:
+    print "In the last %i days you aimed to work %i days and actually managed %i days"%(timeperiod, high, valid)
+    if high <= valid:
         print "Well done."
     else:
-        print "Leaving you %i days short."%(days_aimed-valid)
+        print "Leaving you %i days short."%(high-valid)
     print
 
     validtime = sum(tmp[task] for task in tmp if not task.endswith('**'))
@@ -60,8 +63,9 @@ def summary_display(timeperiod, days_aimed, hours_aimed, source):
     print "Time since last action : %s"%long_time(age)
 
 
-def task_display(timeperiod, high, source):
-    log = dict(source.exposed_grouped(range(timeperiod)))
+def task_display(timeinfo, source):
+    timeperiod, high, _ = timeinfo
+    log = dict((dmd.clean(n), t) for n, t in source.exposed_grouped(range(timeperiod)))
     target = source.exposed_aim(timeperiod, high)
     for l in target:
         cl = dmd.clean(l)
@@ -78,27 +82,20 @@ if __name__ == '__main__':
     from optparse import OptionParser
     settings = actor.exposed_settings
     days = settings['days_per_week']
+    hours = settings['hours_per_day']
 
     parser = OptionParser()
-    parser.add_option("-d", dest="timeframe", action="store_const", const=(1, 1), default=(1, 1))
-    parser.add_option("-w", dest="timeframe", action="store_const", const=(7, days))
-    parser.add_option("-m", dest="timeframe", action="store_const", const=(28, days*4))
-    parser.add_option("-c", action="store_true", dest="chrono", default=False)
-    parser.add_option("-g", action="store_true", dest="grouped", default=False)
-    parser.add_option("-s", action="store_true", dest="summary", default=False)
-    parser.add_option("-t", action="store_true", dest="tasks", default=False)
+    parser.add_option("-d", action="store_const", dest="timeframe", const=(1, 1, hours), default=(1, 1, hours))
+    parser.add_option("-w", action="store_const", dest="timeframe", const=(7, days, hours*days))
+    parser.add_option("-m", action="store_const", dest="timeframe", const=(28, days*4, hours*days*4))
+    parser.add_option("-c", action="append_const", dest="actions", const=chrono_display)
+    parser.add_option("-g", action="append_const", dest="actions", const=grouped_display)
+    parser.add_option("-s", action="append_const", dest="actions", const=summary_display)
+    parser.add_option("-t", action="append_const", dest="actions", const=task_display)
 
     options, args = parser.parse_args()
     if args:
         actor.exposed_log(" ".join(args))
-    if options.chrono:
-        chrono_display(options.timeframe[0], actor)
+    for method in options.actions:
         print
-    if options.grouped:
-        grouped_display(options.timeframe[0], actor)
-        print
-    if options.summary:
-        summary_display(options.timeframe[0], options.timeframe[1], options.timeframe[1]*settings['hours_per_day'], actor)
-        print
-    if options.tasks:
-        task_display(options.timeframe[0], options.timeframe[1], actor)
+        method(options.timeframe, actor)
