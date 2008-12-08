@@ -5,7 +5,8 @@ import time
 
 try:
     import rpyc
-    actor = rpyc.connect_by_service('LISTENER').root
+    tmp = rpyc.connect_by_service('LISTENER')
+    actor = tmp.root
 except:
     print "Using local service"
     actor = dmd.ListenerService(None)
