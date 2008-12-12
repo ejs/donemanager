@@ -82,6 +82,7 @@ if __name__ == '__main__':
     parser.add_option("-d", action="store_const", dest="timeframe", const=(1, 1, hours), default=(1, 1, hours))
     parser.add_option("-w", action="store_const", dest="timeframe", const=(7, days, hours*days))
     parser.add_option("-m", action="store_const", dest="timeframe", const=(28, days*4, hours*days*4))
+    parser.add_option("-b", action="store_true", dest="slack", default=False)
     parser.add_option("-c", action="append_const", dest="actions", const=chrono_display, default=[])
     parser.add_option("-g", action="append_const", dest="actions", const=grouped_display)
     parser.add_option("-s", action="append_const", dest="actions", const=summary_display)
@@ -89,7 +90,10 @@ if __name__ == '__main__':
 
     options, args = parser.parse_args()
     if args:
-        actor.exposed_log(" ".join(args))
+        actor.exposed_log("%s %s"%(" ".join(args), "**" if options.slack else ""))
+    elif options.slack:
+        actor.exposed_log("break **")
+
     for method in options.actions:
         print
         method(options.timeframe, actor)
